@@ -47,7 +47,10 @@ function updateLoop() {
                 chordUpdateCounter = 0;
                 currChord = (currChord + 1) % chordArr.length;
                 
-                
+                const utterance = new SpeechSynthesisUtterance("A-minor to A-major");
+                utterance.volume = 1.0;
+                speechSynthesis.speak(utterance);
+
                 // randomized chords
                 //currChord = Math.floor(Math.random() * chordArr.length);
             }
@@ -73,6 +76,8 @@ function updateLoop() {
         accumulator -= timeStep;
 
         audioSlider.update();
+        beatSlider.update();
+        voiceSlider.update();
 
         for (let i = 0; i < titleButtons.length; i++) {
             titleButtons[i].update();
@@ -119,6 +124,8 @@ function updateLoop() {
 
     // Slider
     audioSlider.render();
+    beatSlider.render();
+    voiceSlider.render();
 
     // Beat Circles
     ctx.strokeStyle = "gold";

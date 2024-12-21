@@ -2,7 +2,7 @@ let sliderCircleImage = new Image();
 sliderCircleImage.src = "assets/images/sliderCircle.png";
 
 class AudioSlider {
-    constructor(x, y, w, h, min, max, step, def, text) {
+    constructor(x, y, w, h, min, max, step, def, text, storageName, special = 0) {
         this.min = min;
         this.max = max;
         this.step = step;
@@ -17,12 +17,12 @@ class AudioSlider {
         this.sliderR = this.h * 0.37;
         this.text = text;
         this.color = "white";
-        this.font = "70px 'Outfit'";
+        this.font = "50px 'Outfit'";
         this.shadowColor = "aqua";
         this.sliderShadowColor = "aqua";
         this.selected = false;
-
-        console.log(def);
+        this.special = special;
+        this.storageName = storageName;
     }
     update() {
         this.sliderShadowColor = "aqua";
@@ -52,9 +52,9 @@ class AudioSlider {
         this.sliderX = scaleBetweenRanges(this.value, this.min, this.max, this.x + 5, this.x + this.w - 5);
 
         // Store value in localStorage if it changes
-        let lastValue = parseFloat(localStorage.getItem('bpm') || this.def);
+        let lastValue = parseFloat(localStorage.getItem(this.storageName) || this.def);
         if (this.value !== lastValue) {
-            localStorage.setItem('bpm', JSON.stringify(this.value));
+            localStorage.setItem(this.storageName, JSON.stringify(this.value));
         }
     }
     render() {
@@ -65,7 +65,13 @@ class AudioSlider {
         ctx.shadowBlur = 10;
         ctx.shadowColor = this.shadowColor;
         ctx.globalAlpha = 0.8;
-        ctx.fillText(this.value + " " + this.text, this.x + this.w / 2, this.y);
+
+        if (this.special) {
+            ctx.fillText(this.value + " " + this.text, this.x + this.w / 2, this.y);
+        }
+        else {
+            ctx.fillText(this.text + ": " + this.value, this.x + this.w / 2, this.y);
+        }
         ctx.globalAlpha = 1;
         
         ctx.shadowBlur = 5;
@@ -98,14 +104,21 @@ class AudioSlider {
     }
 }
 
-let bpm = 100;
-if (localStorage.getItem('bpm')) {
-    bpm = localStorage.getItem('bpm');
-} else {
-    localStorage.setItem('bpm', bpm)
-}
+let bpm = 100, beatVolume = 5, voiceVolume = 5;
 
-let audioSlider = new AudioSlider(canvas.width / 2 - 150, canvas.height / 2 - 60, 300, 40, 20, 180, 5, bpm, "BPM");
+if (localStorage.getItem('bpm')) bpm = localStorage.getItem('bpm');
+else localStorage.setItem('bpm', bpm)
+
+if (localStorage.getItem('bvv')) beatVolume = localStorage.getItem('bvv');
+else localStorage.setItem('bvv', beatVolume);
+
+if (localStorage.getItem('bvm')) voiceVolume = localStorage.getItem('bvm');
+else localStorage.setItem('bvm', voiceVolume);
+
+
+let audioSlider = new AudioSlider(canvas.width / 2 - 150, canvas.height / 2 - 60, 300, 40, 20, 180, 5, bpm, "BPM", "bpm", 1);
+let beatSlider = new AudioSlider(canvas.width / 2 - 650, canvas.height / 2 - 60, 300, 40, 0, 10, 1, beatVolume, "Beat Volume", "bvv");
+let voiceSlider = new AudioSlider(canvas.width / 2 + 350, canvas.height / 2 - 60, 300, 40, 0, 10, 1, voiceVolume, "Voice Volume", "bvm");
 
 
 class TitleButton {
