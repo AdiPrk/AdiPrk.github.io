@@ -22,6 +22,8 @@ const timeStep = 1000 / frameRate;
 let accumulator = 0;
 let then = performance.now();
 
+const utterance = new SpeechSynthesisUtterance("A-minor to A-major");
+
 // Main Loop
 let currentBeat = 0;
 let bpmTimer = 0;
@@ -29,6 +31,7 @@ let updatingBPM = false;
 let currChord = 0;
 let chordUpdateCounter = 0;
 let boldIndex = 0;
+let spokeChord = false;
 function updateLoop() {
     // Update Accumulator
     const now = performance.now();
@@ -36,27 +39,45 @@ function updateLoop() {
     then = now;
     accumulator += dt;
 
+    let arr = chordArr[currChord].split("-");
+    let c1 = arr[0].trim();
+    let c2 = arr[1].trim();
+
     if (updatingBPM) {
         bpmTimer += dt;
 
         let ms = calculateTimeout(audioSlider.value);
+
+        if (chordUpdateCounter % 4 == 0 && !spokeChord && bpmTimer > ms * 0.5) 
+        {
+            spokeChord = true;
+
+            if (chordUpdateCounter == 0)
+            {
+                chordAudioMap[c1].volume = voiceSlider.value * 0.1;
+                speechSynthesis.speak(chordAudioMap[c1]);
+            }
+            else
+            {
+                chordAudioMap[c2].volume = voiceSlider.value * 0.1;
+                speechSynthesis.speak(chordAudioMap[c2]);
+            }
+        }
+
         if (bpmTimer > ms)
         {
+            spokeChord = false;
             ++chordUpdateCounter;
             if (chordUpdateCounter == 8) {
                 chordUpdateCounter = 0;
                 currChord = (currChord + 1) % chordArr.length;
-                
-                const utterance = new SpeechSynthesisUtterance("A-minor to A-major");
-                utterance.volume = 1.0;
-                speechSynthesis.speak(utterance);
-
+                                
                 // randomized chords
                 //currChord = Math.floor(Math.random() * chordArr.length);
             }
-            boldIndex = Math.floor(chordUpdateCounter / 4);
-            console.log(boldIndex);
 
+            boldIndex = Math.floor(chordUpdateCounter / 4);
+            
             currentBeat = (currentBeat + 1) % 4;
             bpmTimer -= ms;
 
@@ -154,13 +175,6 @@ function updateLoop() {
     ctx.shadowBlur = "10";
     ctx.shadowColor = "aqua";
 
-    let c1 = "";
-    let c2 = "";
-
-    let arr = chordArr[currChord].split("-");
-    c1 = arr[0].trim();
-    c2 = arr[1].trim();
-
     // Set up text styles
     ctx.fillStyle = "white";
     ctx.globalAlpha = 0.8;
@@ -199,7 +213,7 @@ function updateLoop() {
     ctx.fillStyle = "white";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.shadowBlur = "10";
+    ctx.shadowBlur = "5";
     ctx.shadowColor = "aqua";
     ctx.font = "40px 'Outfit'";
     ctx.fillText("Next: " + chordArr[(currChord + 1) % chordArr.length], canvas.width / 2, 810);

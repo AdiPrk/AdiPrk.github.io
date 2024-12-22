@@ -104,7 +104,7 @@ class AudioSlider {
     }
 }
 
-let bpm = 100, beatVolume = 5, voiceVolume = 5;
+let bpm = 100, beatVolume = 2, voiceVolume = 10;
 
 if (localStorage.getItem('bpm')) bpm = localStorage.getItem('bpm');
 else localStorage.setItem('bpm', bpm)
@@ -195,7 +195,7 @@ class TitleButton {
 
 const titleButtons = [];
 titleButtons.push(new TitleButton("Start", canvas.width / 2 - 100, 600));
-titleButtons.push(new TitleButton("Restart", canvas.width / 2 + 100, 600));
+titleButtons.push(new TitleButton("Reset", canvas.width / 2 + 100, 600));
 
 
 class MovingCircleParticle {
