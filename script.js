@@ -262,7 +262,15 @@ function updateLoop() {
         ctx.shadowBlur = "10";
         ctx.shadowColor = "aqua";
         
-        ctx.fillText("Current: " + (4 - currentBeat), canvas.width * 0.5, 750);
+        if (!updatingBPM)
+        {
+            ctx.font = "50px 'Outfit'";
+            ctx.fillText("Press Start to Begin", canvas.width / 2, 750);
+        }
+        else {
+            ctx.fillText("Current: " + (4 - currentBeat), canvas.width * 0.5, 750);
+        }
+
         ctx.shadowBlur = "5";
         ctx.font = "40px 'Outfit'";
         
