@@ -22,8 +22,6 @@ const timeStep = 1000 / frameRate;
 let accumulator = 0;
 let then = performance.now();
 
-const utterance = new SpeechSynthesisUtterance("A-minor to A-major");
-
 // Main Loop
 let currentBeat = 0;
 let bpmTimer = 0;
@@ -32,6 +30,8 @@ let currChord = 0;
 let chordUpdateCounter = 0;
 let boldIndex = 0;
 let spokeChord = false;
+let startedExcercise = false;
+let resetBeat = false;
 function updateLoop() {
     // Update Accumulator
     const now = performance.now();
@@ -48,24 +48,44 @@ function updateLoop() {
 
         let ms = calculateTimeout(audioSlider.value);
 
-        if (chordUpdateCounter % 4 == 0 && !spokeChord && bpmTimer > ms * 0.5) 
+        if (bpmTimer > ms * 0.5 && bpmTimer < ms && (chordUpdateCounter == 3 || resetBeat || chordUpdateCounter == 7) && !spokeChord) 
         {
             spokeChord = true;
-
-            if (chordUpdateCounter == 0)
+            speechSynthesis.cancel();
+            
+            if (resetBeat)
             {
                 chordAudioMap[c1].volume = voiceSlider.value * 0.1;
                 speechSynthesis.speak(chordAudioMap[c1]);
+                console.log("1", resetBeat);
+            }
+            else if (chordUpdateCounter == 7)
+            {
+                let nextArr = chordArr[(currChord + 1) % chordArr.length].split("-");
+                let nextC1 = nextArr[0].trim();
+
+                chordAudioMap[nextC1].volume = voiceSlider.value * 0.1;
+                speechSynthesis.speak(chordAudioMap[nextC1]);
+                console.log("2", resetBeat);
             }
             else
             {
                 chordAudioMap[c2].volume = voiceSlider.value * 0.1;
                 speechSynthesis.speak(chordAudioMap[c2]);
+                console.log("3", resetBeat);
             }
+
         }
 
         if (bpmTimer > ms)
         {
+            if (resetBeat) 
+            {
+                currentBeat = -1;
+                chordUpdateCounter = 0;
+                resetBeat = false;
+            }
+
             spokeChord = false;
             ++chordUpdateCounter;
             if (chordUpdateCounter == 8) {
@@ -76,18 +96,33 @@ function updateLoop() {
                 //currChord = Math.floor(Math.random() * chordArr.length);
             }
 
-            boldIndex = Math.floor(chordUpdateCounter / 4);
-            
-            currentBeat = (currentBeat + 1) % 4;
-            bpmTimer -= ms;
-
-            if (currentBeat == 0)
+            if (!startedExcercise)
             {
-                playABeat();
+                playLowSeiko();
+                
+                bpmTimer -= ms;
+                ++currentBeat;
+                if (currentBeat == 3) 
+                {
+                    startedExcercise = true;
+                    resetBeat = true;
+                }
             }
-            else
+            else 
             {
-                playBBeat();                
+                boldIndex = Math.floor(chordUpdateCounter / 4);
+                
+                currentBeat = (currentBeat + 1) % 4;
+                bpmTimer -= ms;
+
+                if (currentBeat == 0)
+                {
+                    playABeat();
+                }
+                else
+                {
+                    playBBeat();                
+                }
             }
         }
     }
@@ -111,13 +146,17 @@ function updateLoop() {
             if (startButton.text == "Start") {
                 startButton.text = "Stop";
                 updatingBPM = true;
-                playABeat();
+                playHighSeiko();
             } else {
                 startButton.text = "Start";
                 updatingBPM = false;
+                startedExcercise = false;
             }
             bpmTimer = 0;
             currentBeat = 0;
+            resetBeat = false;
+            chordUpdateCounter = 0;
+            boldIndex = 0;
         }
 
         let restartButton = titleButtons[1];
@@ -174,50 +213,62 @@ function updateLoop() {
     ctx.textBaseline = "middle";
     ctx.shadowBlur = "10";
     ctx.shadowColor = "aqua";
-
-    // Set up text styles
-    ctx.fillStyle = "white";
     ctx.globalAlpha = 0.8;
 
-    // Measure text widths
-    const text1 = "Current: ";
-    const text2 = c1;
-    const text3 = " - ";
-    const text4 = c2;
+    if (startedExcercise && !resetBeat)
+    {
+        // Measure text widths
+        const text1 = "Current: ";
+        const text2 = c1;
+        const text3 = " - ";
+        const text4 = c2;
 
-    const text1Width = ctx.measureText(text1).width;
-    const text2Width = ctx.measureText(text2).width;
-    const text3Width = ctx.measureText(text3).width;
-    const text4Width = ctx.measureText(text4).width;
+        const text1Width = ctx.measureText(text1).width;
+        const text2Width = ctx.measureText(text2).width;
+        const text3Width = ctx.measureText(text3).width;
+        const text4Width = ctx.measureText(text4).width;
 
-    const totalWidth = text1Width + text2Width + text3Width + text4Width;
+        const totalWidth = text1Width + text2Width + text3Width + text4Width;
 
-    // Calculate starting position to center the text
-    const startX = (canvas.width - totalWidth) / 2;
-    const y = 750;
+        // Calculate starting position to center the text
+        const startX = (canvas.width - totalWidth) / 2;
+        const y = 750;
 
-    // Draw each text segment
-    ctx.fillStyle = "white";
-    ctx.fillText(text1, startX, y);
+        // Draw each text segment
+        ctx.fillText(text1, startX, y);
 
-    if (boldIndex == 0) { ctx.shadowColor = "gold", ctx.shadowBlur = 10; }
-    ctx.fillText(text2, startX + text1Width, y);
-    ctx.shadowBlur = 0;
+        if (boldIndex == 0) { ctx.shadowColor = "gold", ctx.shadowBlur = 10; }
+        ctx.fillText(text2, startX + text1Width, y);
+        ctx.shadowBlur = 0;
 
-    ctx.fillText(text3, startX + text1Width + text2Width, y);
+        ctx.fillText(text3, startX + text1Width + text2Width, y);
 
-    if (boldIndex == 1) { ctx.shadowColor = "gold", ctx.shadowBlur = 10; }
-    ctx.fillText(text4, startX + text1Width + text2Width + text3Width, y);
+        if (boldIndex == 1) { ctx.shadowColor = "gold", ctx.shadowBlur = 10; }
+        ctx.fillText(text4, startX + text1Width + text2Width + text3Width, y);
 
-    ctx.font = "65px 'Outfit'";
-    ctx.fillStyle = "white";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.shadowBlur = "5";
-    ctx.shadowColor = "aqua";
-    ctx.font = "40px 'Outfit'";
-    ctx.fillText("Next: " + chordArr[(currChord + 1) % chordArr.length], canvas.width / 2, 810);
-    ctx.globalAlpha = 1;
+        ctx.font = "65px 'Outfit'";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.shadowBlur = "5";
+        ctx.shadowColor = "aqua";
+        ctx.font = "40px 'Outfit'";
+        ctx.fillText("Next: " + chordArr[(currChord + 1) % chordArr.length], canvas.width / 2, 810);
+        ctx.globalAlpha = 1;
+    }
+    else
+    {
+        ctx.textAlign = "center";
+        ctx.shadowBlur = "10";
+        ctx.shadowColor = "aqua";
+        
+        ctx.fillText("Current: " + (4 - currentBeat), canvas.width * 0.5, 750);
+        ctx.shadowBlur = "5";
+        ctx.font = "40px 'Outfit'";
+        
+        ctx.fillText("Next: " + chordArr[(currChord) % chordArr.length], canvas.width / 2, 810);
+        ctx.globalAlpha = 1;
+    }
 
     // Wait for the next frame
     requestAnimationFrame(updateLoop);

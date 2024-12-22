@@ -10,19 +10,32 @@ let chordArr = [
 
 let chordAudioMap = {
     "Am": new SpeechSynthesisUtterance("A-minor"),
-    "A": new SpeechSynthesisUtterance("A-major"),
-    "C": new SpeechSynthesisUtterance("C-major"),
-    "D": new SpeechSynthesisUtterance("D-major"),
+    "A": new SpeechSynthesisUtterance("A"),
+    "C": new SpeechSynthesisUtterance("C"),
+    "D": new SpeechSynthesisUtterance("D"),
     "Dm": new SpeechSynthesisUtterance("D-minor"),
-    "E": new SpeechSynthesisUtterance("E-major"),
+    "E": new SpeechSynthesisUtterance("E"),
     "Em": new SpeechSynthesisUtterance("E-minor"),
-    "F": new SpeechSynthesisUtterance("F-major"),
-    "G": new SpeechSynthesisUtterance("G-major"),
-    "C(add9)": new SpeechSynthesisUtterance("C-major with added ninth")
+    "F": new SpeechSynthesisUtterance("F"),
+    "G": new SpeechSynthesisUtterance("G"),
+    "C(add9)": new SpeechSynthesisUtterance("C add ninth")
 }
+
+function preloadUtterances(map) {
+    for (let key in chordAudioMap) {
+        let utterance = chordAudioMap[key];
+        utterance.volume = 0;
+        speechSynthesis.speak(utterance);
+    }
+}
+
+// Preload all utterances
+preloadUtterances(chordAudioMap);
 
 let aBeat = new Audio('assets/audio/aBeat.wav');
 let bBeat = new Audio('assets/audio/bBeat.wav');
+let highSeiko = new Audio('assets/audio/High Seiko SQ50.wav');
+let lowSeiko = new Audio('assets/audio/Low Seiko SQ50.wav');
 
 function playABeat() {
     aBeat.currentTime = 0;
@@ -34,4 +47,16 @@ function playBBeat() {
     bBeat.currentTime = 0;
     bBeat.volume = beatSlider.value * 0.1;
     bBeat.play();
+}
+
+function playHighSeiko() {
+    highSeiko.currentTime = 0;
+    highSeiko.volume = beatSlider.value * 0.1;
+    highSeiko.play();
+}
+
+function playLowSeiko() {
+    lowSeiko.currentTime = 0;
+    lowSeiko.volume = beatSlider.value * 0.1;
+    lowSeiko.play();
 }
