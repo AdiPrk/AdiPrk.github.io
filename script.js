@@ -48,34 +48,30 @@ function updateLoop() {
 
         let ms = calculateTimeout(audioSlider.value);
 
-        if (bpmTimer > ms * 0.5 && bpmTimer < ms && (chordUpdateCounter == 3 || resetBeat || chordUpdateCounter == 7) && !spokeChord) 
-        {
-            spokeChord = true;
-            speechSynthesis.cancel();
+        // if (bpmTimer > ms * 0.5 && bpmTimer < ms && (chordUpdateCounter == 3 || resetBeat || chordUpdateCounter == 7) && !spokeChord) 
+        // {
+        //     spokeChord = true;
+        //     speechSynthesis.cancel();
             
-            if (resetBeat)
-            {
-                chordAudioMap[c1].volume = voiceSlider.value * 0.1;
-                speechSynthesis.speak(chordAudioMap[c1]);
-                console.log("1", resetBeat);
-            }
-            else if (chordUpdateCounter == 7)
-            {
-                let nextArr = chordArr[(currChord + 1) % chordArr.length].split("-");
-                let nextC1 = nextArr[0].trim();
+        //     if (resetBeat)
+        //     {
+        //         chordAudioMap[c1].volume = voiceSlider.value * 0.1;
+        //         speechSynthesis.speak(chordAudioMap[c1]);
+        //     }
+        //     else if (chordUpdateCounter == 7)
+        //     {
+        //         let nextArr = chordArr[(currChord + 1) % chordArr.length].split("-");
+        //         let nextC1 = nextArr[0].trim();
 
-                chordAudioMap[nextC1].volume = voiceSlider.value * 0.1;
-                speechSynthesis.speak(chordAudioMap[nextC1]);
-                console.log("2", resetBeat);
-            }
-            else
-            {
-                chordAudioMap[c2].volume = voiceSlider.value * 0.1;
-                speechSynthesis.speak(chordAudioMap[c2]);
-                console.log("3", resetBeat);
-            }
-
-        }
+        //         chordAudioMap[nextC1].volume = voiceSlider.value * 0.1;
+        //         speechSynthesis.speak(chordAudioMap[nextC1]);
+        //     }
+        //     else
+        //     {
+        //         chordAudioMap[c2].volume = voiceSlider.value * 0.1;
+        //         speechSynthesis.speak(chordAudioMap[c2]);
+        //     }
+        // }
 
         if (bpmTimer > ms)
         {
@@ -133,7 +129,7 @@ function updateLoop() {
 
         audioSlider.update();
         beatSlider.update();
-        voiceSlider.update();
+        //voiceSlider.update();
 
         for (let i = 0; i < titleButtons.length; i++) {
             titleButtons[i].update();
@@ -185,7 +181,7 @@ function updateLoop() {
     // Slider
     audioSlider.render();
     beatSlider.render();
-    voiceSlider.render();
+    //voiceSlider.render();
 
     // Beat Circles
     ctx.strokeStyle = "gold";
@@ -268,7 +264,7 @@ function updateLoop() {
             ctx.fillText("Press Start to Begin", canvas.width / 2, 750);
         }
         else {
-            ctx.fillText("Current: " + (4 - currentBeat), canvas.width * 0.5, 750);
+            ctx.fillText("Starting in: " + (4 - currentBeat), canvas.width * 0.5, 750);
         }
 
         ctx.shadowBlur = "5";

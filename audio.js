@@ -30,7 +30,7 @@ function preloadUtterances(map) {
 }
 
 // Preload all utterances
-preloadUtterances(chordAudioMap);
+// preloadUtterances(chordAudioMap);
 
 let aBeat = new Audio('assets/audio/aBeat.wav');
 let bBeat = new Audio('assets/audio/bBeat.wav');

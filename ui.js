@@ -116,8 +116,8 @@ if (localStorage.getItem('bvm')) voiceVolume = localStorage.getItem('bvm');
 else localStorage.setItem('bvm', voiceVolume);
 
 
-let audioSlider = new AudioSlider(canvas.width / 2 - 150, canvas.height / 2 - 60, 300, 40, 20, 180, 5, bpm, "BPM", "bpm", 1);
-let beatSlider = new AudioSlider(canvas.width / 2 - 650, canvas.height / 2 - 60, 300, 40, 0, 10, 1, beatVolume, "Beat Volume", "bvv");
+let audioSlider = new AudioSlider(canvas.width / 2 - 450, canvas.height / 2 - 60, 300, 40, 20, 180, 5, bpm, "BPM", "bpm", 1);
+let beatSlider = new AudioSlider(canvas.width / 2 + 150, canvas.height / 2 - 60, 300, 40, 0, 10, 1, beatVolume, "Beat Volume", "bvv");
 let voiceSlider = new AudioSlider(canvas.width / 2 + 350, canvas.height / 2 - 60, 300, 40, 0, 10, 1, voiceVolume, "Voice Volume", "bvm");
 
 
