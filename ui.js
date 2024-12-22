@@ -287,3 +287,33 @@ for (let i = 0; i < 50; i++) {
         particles.push(new RotatingSquareParticle());
     }
 }
+
+let bgTimes = 2;
+const getBgAlpha = function(times) {
+	return 0.1 / Math.floor(times);
+}
+
+function drawBackground() {
+	let rot = performance.now() / 10000;
+    
+    bgTimes = 8.02 + (Math.cos(Date.now()/1000) * 0.02);
+
+	let alpha = getBgAlpha(bgTimes);
+
+	ctx.fillStyle = "rgba(127,127,127,"+alpha+")";	
+
+	for(let i = 0; i < bgTimes; i++) {
+		rot += Math.PI * 2 / bgTimes;
+		ctx.translate(canvas.width/2, canvas.height/2);
+		ctx.rotate(rot);
+		ctx.translate(-canvas.width/2, -canvas.height/2);
+
+		for(let i = -canvas.width; i < canvas.width * 2; i += canvas.width / 40){
+			ctx.fillRect(i, -canvas.height, 20, canvas.height * 3);
+		}
+
+		ctx.translate(canvas.width/2, canvas.height/2);
+		ctx.rotate(-rot);
+		ctx.translate(-canvas.width/2, -canvas.height/2);
+	}
+}

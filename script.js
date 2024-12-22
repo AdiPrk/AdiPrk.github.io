@@ -39,9 +39,9 @@ function updateLoop() {
     then = now;
     accumulator += dt;
 
-    let arr = chordArr[currChord].split("-");
-    let c1 = arr[0].trim();
-    let c2 = arr[1].trim();
+    // let arr = chordArr[currChord].split("-");
+    // let c1 = arr[0].trim();
+    // let c2 = arr[1].trim();
 
     if (updatingBPM) {
         bpmTimer += dt;
@@ -78,8 +78,9 @@ function updateLoop() {
             if (resetBeat) 
             {
                 currentBeat = -1;
-                chordUpdateCounter = 0;
+                chordUpdateCounter = -1;
                 resetBeat = false;
+                currChord = 0;
             }
 
             spokeChord = false;
@@ -166,6 +167,13 @@ function updateLoop() {
     let t = accumulator / timeStep;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.shadowBlur = 0;
+    ctx.globalAlpha = 1;
+	ctx.fillStyle = "rgba(0, 0, 0, 1)";
+
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    drawBackground();
+
     particles.forEach(p => p.render());
 
     // Tempo
@@ -213,6 +221,11 @@ function updateLoop() {
 
     if (startedExcercise && !resetBeat)
     {
+        console.log(currChord);
+        let arr = chordArr[currChord].split("-");
+        let c1 = arr[0].trim();
+        let c2 = arr[1].trim();
+        
         // Measure text widths
         const text1 = "Current: ";
         const text2 = c1;
