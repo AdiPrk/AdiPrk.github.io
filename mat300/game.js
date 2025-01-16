@@ -1,0 +1,3 @@
+let game = {
+    state: "Graph"
+}
