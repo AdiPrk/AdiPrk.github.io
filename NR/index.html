@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>NR</title>
+        <link href="style.css" rel="stylesheet" type="text/css"/>
+        <link rel="shortcut icon" href="/assets/images/smolmagicalrift.png"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="description">
+        
+    </head>
+    <body>        
+        <!-- Canvas -->
+        <canvas id="background" width="1600" height="900" style="z-index: 1"></canvas>
+        <canvas id="canvas" width="1600" height="900" style="z-index: 2"></canvas> 
+        <script src="helper/canvas.js"></script>
+        
+        <!-- Libraries -->
+        <script src="assets/libs/sat.js"></script>        
+
+        <!-- Camera -->
+        <script src="game/camera.js"></script>
+        
+        <!-- Controller -->
+        <script src="controller.js"></script>
+        
+        <!-- Helper -->
+        <script src="helper/math.js"></script>
+        <script src="helper/graphics.js"></script>
+        <script src="helper/cutscene.js"></script>
+        <script src="helper/dialogue.js"></script>
+
+        <!-- Entities -->
+        <script src="game/entities/entity.js"></script>
+        <script src="game/entities/room.js"></script>
+        <script src="game/entities/objects.js"></script>    
+        <script src="game/entities/organisms.js"></script>
+    
+        <script src="game/entities/entityMap.js"></script>
+    
+        <!-- Orb -->
+        <script src="game/orb/orb.js"></script>
+        
+        <!-- Player -->
+        <script src="game/player/player.js"></script>
+
+        <!-- Game -->
+        <script src="game/game.js"></script>
+
+        <!-- Map -->
+        <script src="game/map/gameMap.js"></script>
+        <script src="game/map/createArea.js"></script>
+        
+        <!-- Main -->
+        <script src="main.js"></script>
+    </body>
+</html>
