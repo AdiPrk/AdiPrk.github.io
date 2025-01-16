@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>My Projects!</title>
+    <link href="style.css" rel="stylesheet" type="text/css"/>
+    <link rel="shortcut icon" href="/images/favicon.ico"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js" integrity="sha512-szJ5FSo9hEmXXe7b5AUVtn/WnL8a5VofnFeYC2i2z03uS2LhAch7ewNLbl5flsEmTTimMN0enBZg/3sQ+YOSzQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://rawgit.com/kawanet/msgpack-lite/master/dist/msgpack.min.js"></script>
+    <meta name="description" content="Adi's Websites">
+  </head>
+  <body>
+    <h1 id="title">Adi's Projects</h1>
+    <div class="bg" id="bg"></div>
+
+      <div class="tab">
+    <button class="tablinks" id="defaultOpen" onclick="openTab(event, 'featured')">Featured</button>
+    <button class="tablinks active" onclick="openTab(event, 'games')">Games</button>
+    <button class="tablinks" onclick="openTab(event, 'other')">Other</button>
+          
+      </div>
+      
+    <canvas id="canvas" width="1280" height="720" style="z-index: 1"></canvas>
+    <script src="script.js"></script>
+      
+    <!--<h2 id="categorytitle">Featured</h2>-->
+    <table class="content-table" id="featured">
+      <thead>    
+        <tr>
+          <th>
+            Featured Project: 
+            <p style="color:gold; font: size 30px;">Knuckle Knockout</p>
+          </th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <img src="images/kk.png" width=726 height=497 alt="">
+          </td>
+          <td>
+            <a href="https://drive.google.com/file/d/1mTtHKTuYeBXWwJ5bUunL7oCls95C_ElA/view?usp=sharing" target="_blank">Knuckle Knockout download link</a>.
+          </td>
+        </tr>
+      </tbody>
+      <thead>    
+        <tr>
+          <th>
+            Featured Project: 
+            <p style="color:gold; font: size 30px;">Hide and Seek</p>
+          </th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <img src="images/hideAndSeekImage.png" width=776 height=497 alt="">
+          </td>
+          <td>
+            <a href="https://drive.google.com/file/d/1RqJKYyUHRYPaY03hBc5e5v8Rg9nqrO2E/view?usp=sharing" target="_blank">Hide and Seek</a> revolves around hiding and seeking with a friendly and evil ghost. Audio is important in this game. The game was created over about ten weeks with four of my classmates for a college project.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+      
+    <!--<h2 id="categorytitle">Games</h2>-->
+    <table class="content-table" id="games">
+      <thead>
+        <tr>
+          <th>Link</th>
+          <th>Date</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr>
+          <td>
+            <a href="https://e2na2.adiprk.repl.co/" target="_blank">Evades 2</a>
+            <br>
+            <img src="images/e2.png" width=70 height=70 alt="">
+          </td>
+          <td>2021 July - 2022 November</td>
+          <td>A multiplayer fangame based off evades.io. This project was a collab with haha0201, Tronsi, and DepressionOwU and was primarily hosted on Heroku until free dynos were shut down. It was then moved to replit, but unfortunately they also changed their payment plans. This game is now online for the first few days of every month.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://abyss3d-adiprk.replit.app/" target="_blank">Abyss 3D</a>
+            <br>
+            <img src="images/abyss3d.png" width=70 height=70 alt="">
+          </td>
+          <td>2022 July</td>
+          <td>A simple 3D platforming game I speedcoded over a few days to learn more about 3D game development! Each level contains a hidden coin, can you find them in the darkness?</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://abyss-adiprk.replit.app/" target="_blank">Abyss</a>
+            <br>
+            <img src="images/abyss.png" alt="">
+          </td>
+          <td>2021 November</td>
+          <td>A strategic platformer game! Adventure out to find treasure!</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://trax-kajam.realtronsi.repl.co/" target="_blank">Trax</a>
+            <br>
+            <img src="images/trax.png" width=70 height=70 alt="">
+          </td>
+          <td>2021 October</td>
+          <td>
+            My submission for a <a href="https://replit.com/site/kajam" target="_blank">Game Jam</a>
+            hosted by Replit! I collaborated with Tronsi to make this game over seven days.
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://graviamo.replit.app/" target="_blank">Graviamo</a>
+            <br>
+            <img src="images/graviamo.png" width=85 height=70 alt="">
+          </td>
+          <td>2021 October</td>
+          <td>A fun and difficult platforming game. Collab with haha0201. Meant for a 60hz display.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://multisandbox.adiprk.repl.co" target="_blank">Multiplayer Evades.io Sandbox</a>
+            <br>
+            <img src="images/multievades.png" width=70 height=72 alt="">
+          </td>
+          <td>2021 July</td>
+          <td>This is a multiplayer sandbox for Evades.io. Thanks to DD1 for letting me utilize his sandbox code. I adding new heros, enemies, and turned the whole game into a multiplayer game so you can play and chat with your friends!</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://waves.adiprk.repl.co" target="_blank">Waves</a>
+            <br>
+            <img src="images/waves.png" width=75 height=75 alt="">
+          </td>
+          <td>2021 July</td>
+          <td>A small multiplayer game where you must work together with your friends to survive increasingly diffucult waves of enemies.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://arena.adiprk.repl.co" target="_blank">Arena</a>
+            <br>
+            <img src="images/arena.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 June</td>
+          <td>Complete against your friends in an arena where enemies constantly spawn and try to kill you. The one who survives the longest gains a point! Will you be able to get the most points?</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://fishing-adiprk.replit.app/" target="_blank">Fishing Game</a>
+            <br>
+            <img src="images/fishing.png" width=75 height=75 alt="">
+          </td>
+          <td>2021 June</td>
+          <td>A simple fishing game I speedcoded in under an hour from scratch! Drop your fishing rod and try to collect all the fishes in the fastest time! Be careful, some fishes will make you drop your other fishes...</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://optimized-multiplayer-testing.adiprk.repl.co" target="_blank">Multiplayer Dodging Game</a>
+            <br>
+            <img src="images/omt.png" width=85 height=70 alt="">
+          </td>
+          <td>2021 May</td>
+          <td>A further improvement on my first multiplayer dodging game!</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://adventure-adiprk.replit.app/" target="_blank">Adventure</a>
+            <br>
+            <img src="images/adventure.png" width=75 height=75 alt="">
+          </td>
+          <td>2021 May</td>
+          <td>A really incomplete platformer game where I tried experiment with better physics and graphics.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://mouseption-adiprk.replit.app/" target="_blank">Mouseption</a>
+            <br>
+            <img src="images/mouseption.png" width=84 height=80 alt="">
+          </td>
+          <td>2021 May</td>
+          <td>Fast paced mouse dodging game. Guide the circle with your mouse to dodge the moving rectangles! This game gets increasingly more difficult and is very hard to beat.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://race-adiprk.replit.app/" target="_blank">Race TASBot</a>
+            <br>
+            <img src="images/racetasbot.png" width=85 height=54 alt="">
+          </td>
+          <td>2021 May</td>
+          <td>Race a near perfect bot through Ominous Occult, one of the hardest maps from Evades.io. Only meant for pros!</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://evades-amaster-style-adiprk.replit.app/" target="_blank">Amasterclasher's Idea</a>
+            <br>
+            <img src="images/eamastyle.png" width=74 height=74 alt="">
+          </td>
+          <td>2021 April</td>
+          <td>A twist on Evades.io, credits to amasterclaser for the idea.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://survive-adiprk.replit.app/" target="_blank">Survive</a>
+            <br>
+            <img src="images/survive.png" width=80 height=80 alt="">
+          </td>
+          <td>2021 March</td>
+          <td>An infinitly big scrolling world where you can shoot enemies and must try to live as long as you can. Pick up healing items if your health falls low!</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://plat-adiprk.replit.app/" target="_blank">Platformer</a>
+            <br>
+            <img src="images/plat.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 Febuary</td>
+          <td>My first platforming game! Features 30 unique levels.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://rpg-adiprk.replit.app/" target="_blank">Multiplayer 2D Shooter</a>
+            <br>
+            <img src="images/rpg.png" width=88 height=60 alt="">
+          </td>
+          <td>2021 Febuary</td>
+          <td>Face against your friends in this super simple 2d shooter game! This is my second attempt at a multiplayer game.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://orbit-adiprk.replit.app/" target="_blank">Orbit</a>
+            <br>
+            <img src="images/orbit.png" width=84 height=83 alt="">
+          </td>
+          <td>2021 January</td>
+          <td>How many orbits can you make before time runs out? Controls: A, D, ←, and →.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://flappy-bird-adiprk.replit.app/" target="_blank">Flappy Bird</a>
+            <br>
+            <img src="images/flappybird.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 January</td>
+          <td>Everyone knows Flappy Bird!</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://snake-adiprk.replit.app/" target="_blank">Snake Game</a>
+            <br>
+            <img src="images/snake.png" width=55 height=88 alt="">
+          </td>
+          <td>2020 December</td>
+          <td>The popular Snake Game!</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://test-adiprk.replit.app/" target="_blank">First JS Game</a>
+            <br>
+            <img src="images/firstjs.png" width=80 height=80 alt="">
+          </td>
+          <td>2020 December</td>
+          <td>This was my first game with javascript on Replit - A local 2 player game of tag! Chase your friend with either wasd or arrow keys if you are the chaser, and run if you aren't! The runner must also avoid balls bouncing through the arena.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="exe/pong.exe" download="Pong.exe">
+              <p>Pong (download) </p>
+            </a>
+            <br>
+            <img src="images/pong.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 November</td>
+          <td>My first game using C++! It's a really small game but it helped me understand some basic syntax for C++ applications.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://play.unity.com/mg/other/untitled-28830" target="_blank">Elude</a>
+            <br>
+            <img src="images/elude.png" width=77 height=77 alt="">
+          </td>
+          <td>2020 September</td>
+          <td>Evade enemies in this simple dodging game. How long will you survive?</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://connect.unity.com/mg/other/untitled-15345" target="_blank">Room Of Doom</a>
+            <br>
+            <img src="images/roomofdoom.png" width=82 height=82 alt="">
+          </td>
+          <td>2020 August</td>
+          <td>A fun dodging game where you attempt to escape the "Room of Doom." Legends say no-one has ever succeeded.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://play.unity.com/mg/other/untitled-7817" target="_blank">First Unity Game!</a>
+            <br>
+            <img src="images/firstunity.png" width=83 height=83 alt="">
+          </td>
+          <td>2020 August</td>
+          <td>My first ever game using Unity. Features many bugs :)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://scratch.mit.edu/projects/168435299/" target="_blank">Maze game</a>
+            <br>
+            <img src="images/scratchmaze.png" width=88 height=88 alt="">
+          </td>
+          <td>2017 July</td>
+          <td>One of my first games on Scratch! Can you beat all three levels?</td>
+        </tr>
+      </tbody>
+    </table>
+      
+    <!--<h2 id="categorytitle">Other</h2>-->
+    <table class="content-table" id="other">
+      <thead>
+        <tr>
+          <th>Link</th>
+          <th>Date</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <a href="https://pixi-mandelbrot-adiprk.replit.app/" target="_blank">Mandelbrot Shader</a>
+            <br>
+            <img src="images/mandelglsl.png" width=90 height=90 alt="">
+          </td>
+          <td>2023 Febuary</td>
+          <td>
+            This render of the mandelbrot uses a shader coded in GLSL to do all the math for the mandelbrot along with pixi.js to render. WASD / JK to move.
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://flappy-ai-adiprk.replit.app/" target="_blank">Flappy AI</a>
+            <br>
+            <img src="images/flappyai.png" width=90 height=90 alt="">
+          </td>
+          <td>2023 Febuary</td>
+          <td>
+            Watch bots learn to play flappy bird through neural networks and genetic algorithms! Made with tensorflow.js. A harder variant can be found at <a href="https://hardflappyai.adiprk.repl.co/" target="_blank">this link.</a>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://xor-tensorflow-adiprk.replit.app/" target="_blank">Tensorflow xor</a>
+            <br>
+            <img src="images/xor.png" width=90 height=90 alt="">
+          </td>
+          <td>2023 Febuary</td>
+          <td>This website trains a model to solve the xor problem using tensorflow.js</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://quadratic-regression-fit-adiprk.replit.app/" target="_blank">Quadratic Regression</a>
+            <br>
+            <img src="images/quadratic.png" width=90 height=90 alt="">
+          </td>
+          <td>2023 Febuary</td>
+          <td>Plot points and watch ai attempt to do quadratic regression! My first project with tensorflow.js.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://www.youtube.com/watch?v=PYXjeA0szKY" target="_blank">Mandelbrot Zoom</a>
+            <br>
+            <img src="images/mandelZoom.png" width=100 height=100 alt="">
+          </td>
+          <td>2022 December</td>
+          <td>A render of the mandelbrot set zooming in which took four hours for my computer to produce.</td>
+        </tr>
+        <td>
+          <a href="https://rotating-cubes-adiprk.replit.app/" target="_blank">Instanced Mesh</a>
+          <br>
+          <img src="images/rotatingcubes.png" width=90 height=90 alt="">
+        </td>
+        <td>2022 May</td>
+        <td>
+          I experimented with InstancedMesh in Three.js to drastically improve performance when rendering a large amount of objects. I really like how smoothly this runs with 10k moving and rotating objects. Another <a href="https://hugerotatingcubes.adiprk.repl.co/" target="_blank">example</a>
+          is the same thing but with 125000 cubes instead of 10000.
+        </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://simple3dblockart-adiprk.replit.app/" target="_blank">Simple 3D Block Art</a>
+            <br>
+            <img src="images/simple3dblockart.png" width=90 height=90 alt="">
+          </td>
+          <td>2022 May</td>
+          <td>A simple Three.js world where you can place down blocks as you please and create art! This was my first step towards creating a map editor for an upcoming 3d game.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://testingmodel-adiprk.replit.app/" target="_blank">Blender 3D Model</a>
+            <br>
+            <img src="images/testingmodel.png" width=90 height=90 alt="">
+          </td>
+          <td>2022 May</td>
+          <td>A basic three.js world featuring my first model ever from blender!</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://mapmakersandbox-adiprk.replit.app/" target="_blank">Map Maker</a>
+            <br>
+            <img src="images/mapmaker.png" width=90 height=90 alt="">
+          </td>
+          <td>2021 November</td>
+          <td>A level editor I made to create levels for Abyss.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://gravitate-adiprk.replit.app/" target="_blank">Gravitate</a>
+            <br>
+            <img src="images/gravitate.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 June</td>
+          <td>Super simple simulation where I limit the velocity of circles while having them gravitate towards the center... which creates interesting patterns and quickly devolves into chaos</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://orbitnocol-adiprk.replit.app/" target="_blank">Collision Abuse</a>
+            <br>
+            <img src="images/orbitnocol.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 June</td>
+          <td>Balls are attracted to the center of the screen. You can press the controls listed on the top left to control the simulation speed. Eventually, these balls should reach a state where they never collide.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://wind-adiprk.replit.app/" target="_blank">Wind Enemy (Easy)</a>
+            <br>
+            <img src="images/wind.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 June</td>
+          <td>
+            An enemy concept for a game (Evades.io). There's also a harder varient to this <a href="https://hardwind.adiprk.repl.co" target="_blank">here</a>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://chaosgame-adiprk.replit.app/" target="_blank">Chaos Game</a>
+            <br>
+            <img src="images/chaosgame.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 June</td>
+          <td>Spoiler, this is not a game for humans to play. The chaos game is a surprisingly simple algorithm used to create a famous fractal called the Sierpinski Triangle.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://circle-rect-col-adiprk.replit.app/" target="_blank">Circle-Rectangle Collision Test</a>
+            <br>
+            <img src="images/circlerectcol.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 June</td>
+          <td>I used an algorithm I recently learned to simulate collisions between a circle and a rectangle.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://tasbotpov-adiprk.replit.app/" target="_blank">TASBot POV</a>
+            <br>
+            <img src="images/tasbotpov.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 June</td>
+          <td>Let a bot assist you as you play through an impossible level inspired from evades.io</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://aegis-adiprk.replit.app/" target="_blank">Hero Idea Test</a>
+            <br>
+            <img src="images/aegis.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 June</td>
+          <td>A hero concept for Evades.io. Collect pellets to charge up a shield. Once you have enough pellets, press z or j to activate the shield which will bounce away enemies.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://raycast-adiprk.replit.app/" target="_blank">Raycast Rendering</a>
+            <br>
+            <img src="images/raycasting.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 June</td>
+          <td>Renders a 2d world into 3d with raycasting.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://2d-raycasting-adiprk.replit.app/" target="_blank">2D Raycasting Test</a>
+            <br>
+            <img src="images/2draycasting.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 May</td>
+          <td>Move around a light source which emits rays around it that collide with lines.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://mouse-trail-adiprk.replit.app/" target="_blank">Mouse Trail</a>
+            <br>
+            <img src="images/mousetrail.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 May</td>
+          <td>Click and move your mouse around to see a cool mouse trail!</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://self-corrective-algorithm-adiprk.replit.app/" target="_blank">Self Corrective Genetic Algorithm</a>
+            <br>
+            <img src="images/scalgo.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 May</td>
+          <td>Watch a bot use a genetic algorithm to find a path through a horde of enemies and constantly optimize this path over time. No libraries!</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://generativeart-adiprk.replit.app/" target="_blank">Generative Art Projects #2</a>
+            <br>
+            <img src="images/genart2.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 May</td>
+          <td>Feeling artistic? Hop onto this website and start drawing beautiful mandalas!</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://genart-adiprk.replit.app/" target="_blank">Generative Art Projects #1</a>
+            <br>
+            <img src="images/genart1.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 May</td>
+          <td>Cool canvas rotation which allows the user to create some art.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://interactive-particle-text-adiprk.replit.app/" target="_blank">Interactive Particle Text</a>
+            <br>
+            <img src="images/interactiveparticletext.png" width=98 height=55 alt="">
+          </td>
+          <td>2021 May</td>
+          <td>Super cool interactive particle text! Hover over the particles to make them move.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://fractal-trees-adiprk.replit.app/" target="_blank">Fractal Trees</a>
+            <br>
+            <img src="images/fractaltree.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 May</td>
+          <td>I utilize recursion to create fractal trees!</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://fractal-flakes-adiprk.replit.app/" target="_blank">Fractal Flakes</a>
+            <br>
+            <img src="images/fractalflake.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 May</td>
+          <td>I use recursion to create fractal flakes! Refresh the page to generate a new flake.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://toruss.replit.app/" target="_blank">Torus</a>
+            <br>
+            <img src="images/torus.png" width=70 height=88 alt="">
+          </td>
+          <td>2021 May</td>
+          <td>Torus!</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://dots-ai-adiprk.replit.app/" target="_blank">Dots AI</a>
+            <br>
+            <img src="images/dotsai.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 May</td>
+          <td>Some dots use genetic algorithms to try to reach their goal and optimize their path along the way. How many generations will your dots take to win?</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://node-tree.adiprk.repl.co" target="_blank">Recursion Test</a>
+            <br>
+            <img src="images/nodetree.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 April</td>
+          <td>Not much to see here. This utilizes a recursion function to create a grid of all possible eight-direction movements in seven moves.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://hub.adiprk.repl.co" target="_blank">Cool Enemy Ideas</a>
+            <br>
+            <img src="images/hub.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 April</td>
+          <td>A website that linked out to multiple other websites with various interesting testable game ideas (Incomplete).</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://bad-apple-adiprk.replit.app/" target="_blank">Bad Apple</a>
+            <br>
+            <img src="images/badapple.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 April</td>
+          <td>My very own twist on Bad Apple with some simple pixle manipulation.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://3d-adiprk.replit.app/" target="_blank">First 3D Test</a>
+            <br>
+            <img src="images/3dtest.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 March</td>
+          <td>My first little test towards creating a three dimentional game.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://loading-bar-sim.replit.app/" target="_blank">Loading Bar Simulator</a>
+            <br>
+            <img src="images/loadingbarsim.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 March</td>
+          <td>An insanely fun website based on loaders which could keep you engaged for hours!</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://visualizer.adiprk.repl.co" target="_blank">Piano Visualizer</a>
+            <br>
+            <img src="images/pianovisualizer.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 Febuary</td>
+          <td>An attempt at creating a piano visualizer (Incomplete).</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://fun-adiprk.replit.app/" target="_blank">Diagonal Enemy Test</a>
+            <br>
+            <img src="images/diagonalenemy.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 Febuary</td>
+          <td>A fun little twist on Evades.io where all enemies can only go in four directions rather than 360. Can you make it to the end of the area?</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://timer.adiprk.repl.co" target="_blank">Multiplayer Timer</a>
+            <br>
+            <img src="images/multtimer.png" width=100 height=80 alt="">
+          </td>
+          <td>2021 January</td>
+          <td>As the name suggests, this is a multiplayer timer. This timer is shared with anyone else who goes onto the website. Although this is pretty useless, the purpose of this was to help me understand networking better.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://lol-adiprk.replit.app/" target="_blank">Video Pixel Manipulation</a>
+            <br>
+            <img src="images/pixelmanip.png" width=88 height=88 alt="">
+          </td>
+          <td>2021 January</td>
+          <td>I manipulate pixels in a video to create a cool effect. Check it out!</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://tasbottest-adiprk.replit.app/" target="_blank">TASBot Test</a>
+            <br>
+            <img src="images/tasbottest.png" width=88 height=88 alt="">
+          </td>
+          <td>2020 December</td>
+          <td>A little proof of concept which didn't really work for creating a bot that can dodge moving objects.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://play.unity.com/mg/other/magno-7i4" target="_blank">Repel Aura Test</a>
+            <br>
+            <img src="images/repel.png" width=88 height=88 alt="">
+          </td>
+          <td>2020 November</td>
+          <td>A test where the player creates an aura that pushes away enemies close to it with a differing magnitude depending on distance and speed.</td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>
