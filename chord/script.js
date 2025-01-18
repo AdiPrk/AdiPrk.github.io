@@ -24,6 +24,7 @@ let then = performance.now();
 
 // Main Loop
 let currentBeat = 0;
+let beatsToStart = 8;
 let bpmTimer = 0;
 let updatingBPM = false;
 let currChord = 0;
@@ -48,31 +49,6 @@ function updateLoop() {
 
         let ms = calculateTimeout(audioSlider.value);
 
-        // if (bpmTimer > ms * 0.5 && bpmTimer < ms && (chordUpdateCounter == 3 || resetBeat || chordUpdateCounter == 7) && !spokeChord) 
-        // {
-        //     spokeChord = true;
-        //     speechSynthesis.cancel();
-            
-        //     if (resetBeat)
-        //     {
-        //         chordAudioMap[c1].volume = voiceSlider.value * 0.1;
-        //         speechSynthesis.speak(chordAudioMap[c1]);
-        //     }
-        //     else if (chordUpdateCounter == 7)
-        //     {
-        //         let nextArr = chordArr[(currChord + 1) % chordArr.length].split("-");
-        //         let nextC1 = nextArr[0].trim();
-
-        //         chordAudioMap[nextC1].volume = voiceSlider.value * 0.1;
-        //         speechSynthesis.speak(chordAudioMap[nextC1]);
-        //     }
-        //     else
-        //     {
-        //         chordAudioMap[c2].volume = voiceSlider.value * 0.1;
-        //         speechSynthesis.speak(chordAudioMap[c2]);
-        //     }
-        // }
-
         if (bpmTimer > ms)
         {
             if (resetBeat) 
@@ -95,11 +71,17 @@ function updateLoop() {
 
             if (!startedExcercise)
             {
-                playLowSeiko();
+                if (currentBeat == 3) {
+                    playHighSeiko()
+                }
+                else {
+                    playLowSeiko();
+                }
                 
                 bpmTimer -= ms;
                 ++currentBeat;
-                if (currentBeat == 3) 
+
+                if (currentBeat == beatsToStart - 1 || beatsToStart - currentBeat < 0) 
                 {
                     startedExcercise = true;
                     resetBeat = true;
@@ -130,7 +112,8 @@ function updateLoop() {
 
         audioSlider.update();
         beatSlider.update();
-        //voiceSlider.update();
+        leadupSlider.update();
+        beatsToStart = leadupSlider.value;
 
         for (let i = 0; i < titleButtons.length; i++) {
             titleButtons[i].update();
@@ -189,14 +172,14 @@ function updateLoop() {
     // Slider
     audioSlider.render();
     beatSlider.render();
-    //voiceSlider.render();
+    leadupSlider.render();
 
     // Beat Circles
     ctx.strokeStyle = "gold";
 
     for (let i = 0; i < 4; ++i) 
     {
-        if (i == currentBeat) ctx.fillStyle = "gold";
+        if (i == currentBeat || i + 4 == currentBeat) ctx.fillStyle = "gold";
         else ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
         ctx.beginPath();
         ctx.arc(canvas.width * 0.5 - 90 + 60 * i, canvas.height * 0.5 + 20, 20, 0, Math.PI * 2);
@@ -277,7 +260,7 @@ function updateLoop() {
             ctx.fillText("Press Start to Begin", canvas.width / 2, 750);
         }
         else {
-            ctx.fillText("Starting in: " + (4 - currentBeat), canvas.width * 0.5, 750);
+            ctx.fillText("Starting in: " + (beatsToStart - currentBeat), canvas.width * 0.5, 750);
         }
 
         ctx.shadowBlur = "5";

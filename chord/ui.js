@@ -104,7 +104,7 @@ class AudioSlider {
     }
 }
 
-let bpm = 100, beatVolume = 2, voiceVolume = 10;
+let bpm = 100, beatVolume = 2, voiceVolume = 4;
 
 if (localStorage.getItem('bpm')) bpm = localStorage.getItem('bpm');
 else localStorage.setItem('bpm', bpm)
@@ -112,13 +112,13 @@ else localStorage.setItem('bpm', bpm)
 if (localStorage.getItem('bvv')) beatVolume = localStorage.getItem('bvv');
 else localStorage.setItem('bvv', beatVolume);
 
-if (localStorage.getItem('bvm')) voiceVolume = localStorage.getItem('bvm');
-else localStorage.setItem('bvm', voiceVolume);
+if (localStorage.getItem('bs')) voiceVolume = localStorage.getItem('bs');
+else localStorage.setItem('bs', voiceVolume);
 
 
-let audioSlider = new AudioSlider(canvas.width / 2 - 450, canvas.height / 2 - 60, 300, 40, 20, 180, 5, bpm, "BPM", "bpm", 1);
-let beatSlider = new AudioSlider(canvas.width / 2 + 150, canvas.height / 2 - 60, 300, 40, 0, 10, 1, beatVolume, "Beat Volume", "bvv");
-let voiceSlider = new AudioSlider(canvas.width / 2 + 350, canvas.height / 2 - 60, 300, 40, 0, 10, 1, voiceVolume, "Voice Volume", "bvm");
+let audioSlider = new AudioSlider(canvas.width / 2 - 650, canvas.height / 2 - 60, 300, 40, 20, 180, 5, bpm, "BPM", "bpm", 1);
+let beatSlider = new AudioSlider(canvas.width / 2 - 150, canvas.height / 2 - 60, 300, 40, 0, 10, 1, beatVolume, "Beat Volume", "bvv");
+let leadupSlider = new AudioSlider(canvas.width / 2 + 350, canvas.height / 2 - 60, 300, 40, 4, 16, 4, voiceVolume, "Starting Beats", "bs");
 
 
 class TitleButton {
