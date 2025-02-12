@@ -519,7 +519,9 @@ function graphUpdateLoop() {
     graph.draw();
     graphButtons.forEach(b => b.render());
     bezier.draw();
-    tSlider.render();
+    if (bezier.method === "NLI-form") {
+        tSlider.render();
+    }
 
     // if no points, display text
     if (points.length == 0)
