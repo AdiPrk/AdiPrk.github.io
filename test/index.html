@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Click Logger</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <button id="logButton">Click Me</button>
+    <script>
+        document.getElementById("logButton").addEventListener("click", function() {
+            console.log("Button was clicked!");
+        });
+
+        document.addEventListener("mousemove", function(event) {
+            console.log(`Mouse Move - X: ${event.clientX}, Y: ${event.clientY}`);
+        });
+
+        document.addEventListener("mousedown", function(event) {
+            console.log(`Mouse Down - X: ${event.clientX}, Y: ${event.clientY}`);
+        });
+    </script>
+</body>
+</html>
