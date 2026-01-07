@@ -9,7 +9,6 @@
   const DPR_CAP = isMobile ? 1.25 : 1.5;
 
   let running = true;
-  let raf = 0;
 
   // Lazy load: only start when hero is visible
   const hero = document.getElementById("top");
@@ -31,7 +30,6 @@
   async function boot() {
     statusEl.textContent = "Background: loading…";
 
-    // Defer even more to avoid competing with first paint
     const start = async () => {
       try {
         const THREE = await import("https://unpkg.com/three@0.160.0/build/three.module.js");
@@ -63,29 +61,60 @@
     container.appendChild(renderer.domElement);
 
     // Subtle particles
-    const count = isMobile ? 700 : 1200;
+    // 1) Make a soft circular sprite texture (fixes square points)
+    const spriteTex = makeSoftSpriteTexture(THREE);
+
+    // 2) Build geometry with per-particle color + size
+    const count = isMobile ? 520 : 900; // calmer than before
     const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
+
+    // Two low-saturation tints (cool -> warm)
+    const cool = new THREE.Color().setRGB(0.72, 0.82, 1.0); // pale blue
+    const warm = new THREE.Color().setRGB(1.0, 0.72, 0.90); // pale pink
 
     for (let i = 0; i < count; i++) {
-      // wide, sparse cloud
-      const r = Math.pow(Math.random(), 0.7) * 9.0;
+      // Spread: wide, sparse cloud with fewer near center
+      const r = Math.pow(Math.random(), 0.78) * 10.0;
       const a = Math.random() * Math.PI * 2;
-      const y = (Math.random() * 2 - 1) * 3.0;
+      const y = (Math.random() * 2 - 1) * 3.4;
 
-      positions[i * 3 + 0] = Math.cos(a) * r;
+      const x = Math.cos(a) * r;
+      const z = Math.sin(a) * r;
+
+      positions[i * 3 + 0] = x;
       positions[i * 3 + 1] = y;
-      positions[i * 3 + 2] = Math.sin(a) * r;
+      positions[i * 3 + 2] = z;
+
+      // Color variation (subtle)
+      const t = Math.random();
+      const c = cool.clone().lerp(warm, t);
+
+      // Desaturate and dim further so it stays background
+      c.multiplyScalar(0.75);
+
+      colors[i * 3 + 0] = c.r;
+      colors[i * 3 + 1] = c.g;
+      colors[i * 3 + 2] = c.b;
+
+      // Size variation (small, subtle)
+      sizes[i] = isMobile ? (0.045 + Math.random() * 0.030) : (0.050 + Math.random() * 0.035);
     }
 
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1)); // not used by PointsMaterial, but left for future shader upgrade
 
+    // 3) Use PointsMaterial with a sprite map so points become soft circles
     const material = new THREE.PointsMaterial({
-      color: 0xffffff,
-      size: isMobile ? 0.045 : 0.055,
-      sizeAttenuation: true,
+      map: spriteTex,
       transparent: true,
-      opacity: 0.12,            // key: subtle
+      opacity: 0.1,
+      vertexColors: true,
+      size: isMobile ? 0.090 : 0.110,
+      sizeAttenuation: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
@@ -93,9 +122,19 @@
     const points = new THREE.Points(geometry, material);
     scene.add(points);
 
-    // Mouse parallax (tiny)
+    const farGeo = geometry.clone();
+    const farMat = material.clone();
+    farMat.opacity = 0.07;
+    farMat.size = isMobile ? 0.060 : 0.075;
+
+    const farPoints = new THREE.Points(farGeo, farMat);
+    farPoints.scale.set(1.35, 1.15, 1.35);
+    scene.add(farPoints);
+
+    // Tiny parallax
     let mouseX = 0, mouseY = 0;
     let px = 0, py = 0;
+
     window.addEventListener(
       "mousemove",
       (e) => {
@@ -126,33 +165,58 @@
     // Render loop
     const t0 = performance.now();
     const tick = (t) => {
-      if (!running) {
-        raf = requestAnimationFrame(tick);
-        return;
+      // keep a single RAF running; just skip updates when hidden
+      if (running) {
+        if (!reduceMotion) {
+          const time = (t - t0) * 0.00003;
+
+          px = lerp(px, mouseX, 0.04);
+          py = lerp(py, mouseY, 0.04);
+
+          camera.position.x = px * 0.1;
+          camera.position.y = -py * 0.05;
+          camera.lookAt(0, 0, 0);
+
+          points.rotation.y = time;
+          points.rotation.x = time * 0.35;
+          farPoints.rotation.y = -time * 0.8;
+          farPoints.rotation.x = -time * 0.25;
+        }
+
+        renderer.render(scene, camera);
       }
 
-      // Gentle motion only if allowed
-      if (!reduceMotion) {
-        const time = (t - t0) * 0.00006;
-
-        px = lerp(px, mouseX, 0.04);
-        py = lerp(py, mouseY, 0.04);
-
-        camera.position.x = px * 0.35;
-        camera.position.y = -py * 0.25;
-        camera.lookAt(0, 0, 0);
-
-        points.rotation.y = time;
-        points.rotation.x = time * 0.5;
-      }
-
-      renderer.render(scene, camera);
-      raf = requestAnimationFrame(tick);
+      requestAnimationFrame(tick);
     };
 
-    raf = requestAnimationFrame(tick);
+    requestAnimationFrame(tick);
   }
 
   function lerp(a, b, t) { return a + (b - a) * t; }
   function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+
+    function makeSoftSpriteTexture(THREE) {
+    const c = document.createElement("canvas");
+    c.width = 64;
+    c.height = 64;
+    const ctx = c.getContext("2d");
+
+    // Radial gradient: bright center -> soft edge
+    const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0.0, "rgba(255,255,255,0.95)");
+    g.addColorStop(0.25, "rgba(255,255,255,0.35)");
+    g.addColorStop(0.55, "rgba(255,255,255,0.12)");
+    g.addColorStop(1.0, "rgba(255,255,255,0.0)");
+
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 64, 64);
+
+    const tex = new THREE.CanvasTexture(c);
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    tex.generateMipmaps = false;
+    tex.needsUpdate = true;
+    return tex;
+  }
+
 })();

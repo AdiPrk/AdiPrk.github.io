@@ -10,12 +10,15 @@
 </head>
 
 <body>
+  <!-- Subtle particles background -->
   <div id="bg" aria-hidden="true"></div>
+  <div id="grain" aria-hidden="true"></div>
+  <div id="fx" aria-hidden="true"></div>
 
   <header class="header">
     <div class="wrap header-inner">
-      <div class="name">Your Name</div>
-      <nav class="nav">
+      <a class="name" href="#top" aria-label="Home">Your Name</a>
+      <nav class="nav" aria-label="Primary">
         <a href="#work">Work</a>
         <a href="#about">About</a>
         <a class="nav-cta" href="#contact">Contact</a>
@@ -23,13 +26,15 @@
     </div>
   </header>
 
-  <main class="wrap">
-    <section class="hero" id="top">
+  <main class="wrap" id="top">
+    <section class="hero">
       <p class="kicker">DigiPen RTIS ’26 · C++ / Rendering / Engine · US (WA preferred)</p>
+
       <h1>Engine &amp; Graphics Programmer</h1>
+
       <p class="subhead">
         I build performant real-time systems: Vulkan ray tracing, GPU-driven pipelines, render graphs,
-        ECS architecture, and compute-heavy effects.
+        ECS architecture, and profiling-first optimization.
       </p>
 
       <div class="links">
@@ -45,66 +50,134 @@
     <section id="work" class="section">
       <div class="section-title">
         <h2>Selected Work</h2>
-        <p class="section-sub">Short, impact-first. Details live in write-ups.</p>
+        <p class="section-sub">Short, impact-first. Details live in case studies.</p>
       </div>
 
-      <article class="item">
-        <div class="item-head">
-          <h3>Radis</h3>
-          <span class="meta">Custom C++ Engine · Vulkan RT</span>
+      <a class="workrow" href="radis.html">
+        <div class="workrow-media">
+          <img
+            src="media/radis.webp"
+            alt="Radis engine thumbnail"
+            loading="lazy"
+            decoding="async"
+          />
         </div>
-        <p class="desc">
-          Vulkan ray tracing pipeline (BLAS/TLAS + SBT), render graph for synchronization/lifetimes,
-          GPU-compressed texture pipeline (~80% load time reduction).
-        </p>
-        <div class="item-links">
-          <a href="#">Write-up</a><span>·</span><a href="#">Video</a><span>·</span><a href="#">GitHub</a>
-        </div>
-      </article>
 
-      <article class="item">
-        <div class="item-head">
-          <h3>NiteLite</h3>
-          <span class="meta">Custom C++ Engine · GPU-driven</span>
+        <div class="workrow-left">
+          <div class="workrow-title">
+            <h3>Radis</h3>
+            <span class="pill">C++ · Vulkan</span>
+            <span class="pill">Ray Tracing</span>
+          </div>
+          <p class="workrow-desc">
+            Custom engine focused on GPU-first rendering: RT GI, render graph orchestration, and a tight asset pipeline.
+          </p>
+          <div class="workrow-metrics">
+            <span>~80% faster loads</span><span class="sep">·</span><span>RT BLAS/TLAS + SBT</span>
+          </div>
         </div>
-        <p class="desc">
-          Multi-draw indirect to cut CPU draw overhead (~90%). Compute particle system (6M+ at 60 FPS).
-          Profiling with RenderDoc/Nsight (3× FPS in peak scenes).
-        </p>
-        <div class="item-links">
-          <a href="#">Write-up</a><span>·</span><a href="#">Video</a><span>·</span><a href="#">GitHub</a>
-        </div>
-      </article>
 
-      <article class="item">
-        <div class="item-head">
-          <h3>Knuckle Knockout</h3>
-          <span class="meta">Tech Lead · Shipped on Steam</span>
+        <div class="workrow-right">
+          <span class="arrow">View →</span>
         </div>
-        <p class="desc">
-          Led a 5-person team. Custom engine + OpenGL renderer + physics for 5,000+ dynamic entities at 60 FPS.
-          Spatial partitioning reduced SAT checks ~70%.
-        </p>
-        <div class="item-links">
-          <a href="#">Steam</a><span>·</span><a href="#">Write-up</a>
+      </a>
+
+      <a class="workrow" href="nitelite.html">
+        <div class="workrow-media">
+          <img
+            src="media/nitelite.webp"
+            alt="NiteLite engine thumbnail"
+            loading="lazy"
+            decoding="async"
+          />
         </div>
-      </article>
+
+        <div class="workrow-left">
+          <div class="workrow-title">
+            <h3>NiteLite</h3>
+            <span class="pill">C++ · Vulkan</span>
+            <span class="pill">GPU-driven</span>
+          </div>
+          <p class="workrow-desc">
+            Renderer + engine tech emphasizing draw-call scalability, compute particles, and profiling-driven iteration.
+          </p>
+          <div class="workrow-metrics">
+            <span>~90% CPU draw reduction</span><span class="sep">·</span><span>6M particles @ 60 FPS</span>
+          </div>
+        </div>
+
+        <div class="workrow-right">
+          <span class="arrow">View →</span>
+        </div>
+      </a>
+
+      <a class="workrow" href="knuckle.html">
+        <div class="workrow-media">
+          <img
+            src="media/knuckle.webp"
+            alt="Knuckle Knockout thumbnail"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+
+        <div class="workrow-left">
+          <div class="workrow-title">
+            <h3>Knuckle Knockout</h3>
+            <span class="pill">C++</span>
+            <span class="pill">OpenGL</span>
+            <span class="pill">Shipped</span>
+          </div>
+          <p class="workrow-desc">
+            Technical lead on a shipped title built on a custom engine: renderer, physics, tools, and team integration.
+          </p>
+          <div class="workrow-metrics">
+            <span>5,000+ dynamic bodies</span><span class="sep">·</span><span>~70% fewer SAT checks</span>
+          </div>
+        </div>
+
+        <div class="workrow-right">
+          <span class="arrow">View →</span>
+        </div>
+      </a>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <h2>Capabilities</h2>
+        <p class="section-sub">What I like building (and shipping).</p>
+      </div>
+
+      <div class="chipgrid">
+        <span class="chip">Render Graphs</span>
+        <span class="chip">Vulkan Ray Tracing</span>
+        <span class="chip">GPU-driven Rendering</span>
+        <span class="chip">Compute Pipelines</span>
+        <span class="chip">Profiling (Nsight / RenderDoc)</span>
+        <span class="chip">Asset Pipelines</span>
+        <span class="chip">ECS Architecture</span>
+        <span class="chip">Performance Optimization</span>
+      </div>
     </section>
 
     <section id="about" class="section">
       <div class="section-title">
         <h2>About</h2>
+        <p class="section-sub">A little context. Keep it short.</p>
       </div>
+
       <p class="desc">
-        Two lines about you: what you optimize for (performance, architecture, profiling), what roles you want
-        (C++ engine/graphics/systems), and graduation date.
+        I’m a DigiPen RTIS senior graduating in April 2026, focused on C++ engine and graphics programming.
+        I enjoy performance-oriented architecture, GPU-first approaches, and profiling-driven iteration.
       </p>
     </section>
 
     <section id="contact" class="section">
       <div class="section-title">
         <h2>Contact</h2>
+        <p class="section-sub">Let’s talk.</p>
       </div>
+
       <p class="desc">
         <a class="underline" href="mailto:you@email.com">you@email.com</a>
         <span class="muted"> · </span>
