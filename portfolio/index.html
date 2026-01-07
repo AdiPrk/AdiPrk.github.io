@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <title>Your Name — Engine / Graphics (C++)</title>
+  <meta name="description" content="C++ engine / graphics programmer. Custom engines, rendering systems, performance." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div id="bg" aria-hidden="true"></div>
+
+  <header class="header">
+    <div class="wrap header-inner">
+      <div class="name">Your Name</div>
+      <nav class="nav">
+        <a href="#work">Work</a>
+        <a href="#about">About</a>
+        <a class="nav-cta" href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero" id="top">
+      <p class="kicker">DigiPen RTIS ’26 · C++ / Rendering / Engine · US (WA preferred)</p>
+      <h1>Engine &amp; Graphics Programmer</h1>
+      <p class="subhead">
+        I build performant real-time systems: Vulkan ray tracing, GPU-driven pipelines, render graphs,
+        ECS architecture, and compute-heavy effects.
+      </p>
+
+      <div class="links">
+        <a class="btn" href="resume.pdf" target="_blank" rel="noopener">Resume</a>
+        <a class="btn ghost" href="https://github.com/yourhandle" target="_blank" rel="noopener">GitHub</a>
+        <a class="btn ghost" href="https://linkedin.com/in/yourhandle" target="_blank" rel="noopener">LinkedIn</a>
+        <a class="btn ghost" href="mailto:you@email.com">Email</a>
+      </div>
+
+      <p class="hint" id="rendererStatus">Background: loading…</p>
+    </section>
+
+    <section id="work" class="section">
+      <div class="section-title">
+        <h2>Selected Work</h2>
+        <p class="section-sub">Short, impact-first. Details live in write-ups.</p>
+      </div>
+
+      <article class="item">
+        <div class="item-head">
+          <h3>Radis</h3>
+          <span class="meta">Custom C++ Engine · Vulkan RT</span>
+        </div>
+        <p class="desc">
+          Vulkan ray tracing pipeline (BLAS/TLAS + SBT), render graph for synchronization/lifetimes,
+          GPU-compressed texture pipeline (~80% load time reduction).
+        </p>
+        <div class="item-links">
+          <a href="#">Write-up</a><span>·</span><a href="#">Video</a><span>·</span><a href="#">GitHub</a>
+        </div>
+      </article>
+
+      <article class="item">
+        <div class="item-head">
+          <h3>NiteLite</h3>
+          <span class="meta">Custom C++ Engine · GPU-driven</span>
+        </div>
+        <p class="desc">
+          Multi-draw indirect to cut CPU draw overhead (~90%). Compute particle system (6M+ at 60 FPS).
+          Profiling with RenderDoc/Nsight (3× FPS in peak scenes).
+        </p>
+        <div class="item-links">
+          <a href="#">Write-up</a><span>·</span><a href="#">Video</a><span>·</span><a href="#">GitHub</a>
+        </div>
+      </article>
+
+      <article class="item">
+        <div class="item-head">
+          <h3>Knuckle Knockout</h3>
+          <span class="meta">Tech Lead · Shipped on Steam</span>
+        </div>
+        <p class="desc">
+          Led a 5-person team. Custom engine + OpenGL renderer + physics for 5,000+ dynamic entities at 60 FPS.
+          Spatial partitioning reduced SAT checks ~70%.
+        </p>
+        <div class="item-links">
+          <a href="#">Steam</a><span>·</span><a href="#">Write-up</a>
+        </div>
+      </article>
+    </section>
+
+    <section id="about" class="section">
+      <div class="section-title">
+        <h2>About</h2>
+      </div>
+      <p class="desc">
+        Two lines about you: what you optimize for (performance, architecture, profiling), what roles you want
+        (C++ engine/graphics/systems), and graduation date.
+      </p>
+    </section>
+
+    <section id="contact" class="section">
+      <div class="section-title">
+        <h2>Contact</h2>
+      </div>
+      <p class="desc">
+        <a class="underline" href="mailto:you@email.com">you@email.com</a>
+        <span class="muted"> · </span>
+        <a class="underline" href="https://linkedin.com/in/yourhandle" target="_blank" rel="noopener">LinkedIn</a>
+      </p>
+    </section>
+
+    <footer class="footer">
+      <span>© <span id="year"></span> Your Name</span>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+  <script defer src="main.js"></script>
+</body>
+</html>

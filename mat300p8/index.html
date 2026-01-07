@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Three.js Graph with Grid and Labels</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <style>
+      /* Helper text box styling */
+      #helperText {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 2;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 10px 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-family: 'Arial', sans-serif;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        max-width: 250px;
+      }
+      #helperText h4 {
+        margin-top: 0;
+        margin-bottom: 8px;
+        font-size: 1.1em;
+        color: #333;
+      }
+      #helperText p {
+        margin: 0;
+        font-size: 0.95em;
+        color: #555;
+      }
+      #helperText p strong {
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- The canvas element used by Three.js -->
+    <canvas id="canvas" style="z-index: 1;"></canvas>
+    
+    <!-- UI Controls -->
+    <div id="controls" style="position: absolute; top: 10px; left: 10px; z-index: 2; background: rgba(255,255,255,0.8); padding: 10px; border-radius: 5px;">
+      <label for="formDropdown">Select Form: </label>
+      <select id="formDropdown">
+        <option value="NLI-form">NLI-form</option>
+        <option value="BB-form">BB-form</option>
+        <option value="Midpoint Subdivision">Midpoint Subdivision</option>
+      </select>
+      <br /><br />
+      <label for="tValueSlider">T-value: </label>
+      <input type="range" id="tValueSlider" min="0" max="1" step="0.001" value="0.5">
+      <span id="tValueDisplay">0.5</span>
+    </div>
+
+    <!-- Helper Text -->
+    <div id="helperText">
+      <h4>Controls</h4>
+      <p>
+        <strong>Left click:</strong> Place/Edit a point<br>
+        <strong>Right click:</strong> Rotate camera<br>
+        <strong>Scroll:</strong> Zoom<br>
+      </p>
+    </div>
+
+    <!-- Load the non-module version of Three.js -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.124/build/three.js"></script>
+    <!-- Load the non-module version of OrbitControls -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.124/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.124/examples/js/controls/TransformControls.js"></script>
+
+    <!-- Load the grid/graph module -->
+    <script src="graph.js"></script>
+    
+    <!-- Your custom scene script -->
+    <script src="script2.js"></script>
+  </body>
+</html>

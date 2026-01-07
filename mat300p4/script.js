@@ -166,123 +166,6 @@ class Graph
 
 let graph = new Graph();
 
-// Bernstein Polynomial Class
-class BernsteinPolynomial {
-    constructor(degree, method) {
-        this.degree = degree;
-        this.coefficients = Array.from({ length: degree + 1 }, () => 1); // Default coefficients
-        this.controlPoints = this.coefficients.map((a, i) => new Point(i / degree, a));
-        this.method = method;
-    }
-
-    computeNLI(t) {
-        let temp = [...this.coefficients];
-
-        for (let d = 1; d <= this.degree; d++) {
-            for (let i = 0; i <= this.degree - d; i++) {
-                temp[i] = (1 - t) * temp[i] + t * temp[i + 1];
-            }
-        }
-
-        return temp[0];
-    }
-
-    computeBB(t) {
-        let sum = 0;
-        for (let i = 0; i <= this.degree; i++) {
-            const binomial = this.binomialCoefficient(this.degree, i);
-            sum += binomial * this.coefficients[i] * Math.pow(1 - t, this.degree - i) * Math.pow(t, i);
-        }   
-        return sum;
-    }
-
-    binomialCoefficient(n, k) {
-        let coeff = 1;
-        for (let i = 0; i < k; i++) {
-            coeff *= (n - i) / (i + 1);
-        }
-        return coeff;
-    }
-
-    draw() {
-        const method = this.method;
-        ctx.strokeStyle = "lime";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        let prevX = 0, prevY = this.computeNLI(0);
-        if (method === "BB-form") prevY = this.computeBB(0);
-        
-        for (let t = 0; t <= 1.01; t += 0.01) {
-            const x = scaleBetweenRanges(t, graphInfo.xMin, graphInfo.xMax, 0, canvas.width);
-            const y = scaleBetweenRanges(
-                method === "NLI" ? this.computeNLI(t) : this.computeBB(t),
-                graphInfo.yMin,
-                graphInfo.yMax,
-                canvas.height,
-                0
-            );
-            if (t === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-            prevX = x;
-            prevY = y;
-        }
-        ctx.stroke();
-
-        // Draw control points
-        this.controlPoints.forEach(point => point.draw());
-    }
-
-    update()
-    {
-        if (mouse.clicked)
-        {
-            // check which point mouse is hovering on
-            let anySelected = false;
-            let pointToUpdate;
-
-            let n = -1;
-            for (let i = 0; i < this.controlPoints.length; i++)
-            {
-                let point = this.controlPoints[i];
-                if (!point.selected) continue;
-
-                n = i;
-                anySelected = true;
-                pointToUpdate = point;
-                break;
-            }
-
-            if (!anySelected) {
-                for (let i = 0; i < this.controlPoints.length; i++)
-                {
-                    let point = this.controlPoints[i];
-                    let dist = distance(point.drawX, point.drawY, mouse.x, mouse.y);
-                    if (dist < 15)
-                    {
-                        pointToUpdate = point;
-                        n = i;
-                    }
-                }
-            }
-            
-            if (n != -1) {
-                pointToUpdate.selected = true;
-
-                let newY = mouse.y;
-                if (newY < 0) newY = 0;
-                if (newY > canvas.height) newY = canvas.height;
-
-                pointToUpdate.drawY = newY;
-                pointToUpdate.y = scaleBetweenRanges(newY, canvas.height, 0, graphInfo.yMin, graphInfo.yMax);
-                this.coefficients[n] = pointToUpdate.y;
-            }
-        }
-    }
-}
-
-// let poly = new BernsteinPolynomial(degreeSlider.value, "BB-form");
-
-
 class BezierCurve {
     constructor(controlPoints, method = "NLI-form") {
         this.controlPoints = controlPoints;
@@ -434,6 +317,59 @@ class BezierCurve {
     }
 
     update() {
+        
+    }
+}
+
+let bezier = new BezierCurve(points);
+
+class NewtonForm {
+    constructor(controlPoints) {
+        this.controlPoints = controlPoints;
+        this.xCoeffs = [];
+        this.yCoeffs = [];
+    }
+
+    computeXCoeffs() {
+        let d = this.controlPoints.length - 1;
+        let coeffs = new Array(d + 1);
+        for (let i = 0; i <= d; i++) {
+            coeffs[i] = this.controlPoints[i].x;
+        }
+
+        for (let j = 1; j <= d; j++) {
+            for (let i = d; i >= j; i--) {
+                coeffs[i] = (coeffs[i] - coeffs[i - 1]) / j;
+            }
+        }
+
+        this.xCoeffs = coeffs;
+    }
+
+    computeYCoeffs() {
+        let d = this.controlPoints.length - 1;
+        let coeffs = new Array(d + 1);
+        for (let i = 0; i <= d; i++) {
+            coeffs[i] = this.controlPoints[i].y;
+        }
+
+        for (let j = 1; j <= d; j++) {
+            for (let i = d; i >= j; i--) {
+                coeffs[i] = (coeffs[i] - coeffs[i - 1]) / j;
+            }
+        }
+
+        this.yCoeffs = coeffs;
+    }
+
+    update()
+    {
+        if (graph.mouseWasClicked) {
+            this.computeXCoeffs();
+            this.computeYCoeffs();
+            console.log("update");
+        }
+
         if (mouse.clicked)
         {
             // check which point mouse is hovering on
@@ -482,12 +418,318 @@ class BezierCurve {
                 
                 pointToUpdate.x = scaleBetweenRanges(newX, 0, canvas.width, graphInfo.xMin, graphInfo.xMax);
                 pointToUpdate.y = scaleBetweenRanges(newY, canvas.height, 0, graphInfo.yMin, graphInfo.yMax);
+
+                this.computeXCoeffs();
+                this.computeYCoeffs();
             }
         }
     }
+
+    computeX(t)
+    {
+        let result = this.xCoeffs[0];
+        let term = 1;
+        // For each additional coefficient, update the term and add its contribution.
+        for (let i = 1; i < this.xCoeffs.length; i++) {
+            term *= (t - (i - 1));  // Multiply by (t - previous t-value)
+            result += this.xCoeffs[i] * term;
+        }
+        return result;
+    }
+
+    computeY(t)
+    {
+        let result = this.yCoeffs[0];
+        let term = 1;
+        // For each additional coefficient, update the term and add its contribution.
+        for (let i = 1; i < this.yCoeffs.length; i++) {
+            term *= (t - (i - 1));  // Multiply by (t - previous t-value)
+            result += this.yCoeffs[i] * term;
+        }
+        return result;
+    }
+
+    draw()
+    {
+        let d = this.controlPoints.length - 1;
+        if (d < 0) return;  // No points available.
+
+        // Draw control points
+        this.controlPoints.forEach(point => point.draw());
+
+        // Draw Newton form curve
+        ctx.strokeStyle = "lime";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        // We evaluate the curve over t in [0, d]. Adjust step for smoother curves.
+        let tMax = d;
+        let step = 0.0002;
+        let x = this.computeX(0);
+        let y = this.computeY(0);
+        let drawX = scaleBetweenRanges(x, graphInfo.xMin, graphInfo.xMax, 0, canvas.width);
+        let drawY = scaleBetweenRanges(y, graphInfo.yMin, graphInfo.yMax, canvas.height, 0);
+        ctx.moveTo(drawX, drawY);
+
+        for (let t = step; t <= tMax; t += step) {
+            x = this.computeX(t);
+            y = this.computeY(t);
+            drawX = scaleBetweenRanges(x, graphInfo.xMin, graphInfo.xMax, 0, canvas.width);
+            drawY = scaleBetweenRanges(y, graphInfo.yMin, graphInfo.yMax, canvas.height, 0);
+            ctx.lineTo(drawX, drawY);
+        }
+
+        ctx.stroke();
+        ctx.closePath();
+
+        // Draw control polygon
+        ctx.strokeStyle = "white";
+        ctx.setLineDash([15, 8]);
+        ctx.globalAlpha = 0.3;
+        for (let i = 0; i < this.controlPoints.length - 1; i++) {
+            DrawLine(
+                this.controlPoints[i].drawX,
+                this.controlPoints[i].drawY,
+                this.controlPoints[i + 1].drawX,
+                this.controlPoints[i + 1].drawY,
+                "gray"
+            );
+        }
+        ctx.setLineDash([]);
+
+        ctx.globalAlpha = 1;
+    }
 }
 
-let bezier = new BezierCurve(points);
+let newtonForm = new NewtonForm(points);
+
+class CubicSpline {
+    constructor(points) {
+        this.points = points; 
+        // alphaX, alphaY will hold the final coefficients for x(t) and y(t)
+        this.alphaX = [];
+        this.alphaY = [];
+
+        this.lastNumPoints = 0;
+    }
+
+    update() {
+        if (this.points.length !== this.lastNumPoints || graph.mouseWasClicked || mouse.clicked) {
+            this.lastNumPoints = this.points.length;
+
+            if (this.points.length < 2) {
+                this.alphaX = [];
+                this.alphaY = [];
+                return;
+            }
+
+            const X = this.points.map(p => p.x);
+            const Y = this.points.map(p => p.y);
+
+            this.alphaX = this.solveSplineCoeffs(X);
+            this.alphaY = this.solveSplineCoeffs(Y);
+        }
+    }
+
+    /**
+     * Solve for the cubic-spline coefficients given an array of values:
+     *   f(0) = vals[0], f(1) = vals[1], ..., f(n) = vals[n]
+     * with natural boundary conditions: f''(0) = 0, f''(n) = 0.
+     * Returns the array of coefficients [a0, a1, a2, a3, b1, ..., b_{n-1}].
+     */
+    solveSplineCoeffs(vals) {
+        const n = vals.length - 1;   // If we have N points, then t goes 0..N-1 => n = N-1
+
+        // Number of unknowns: a0, a1, a2, a3, plus b1..b_{n-1} => total n+3
+        // We'll build a system A * alpha = b, of dimension (n+3) x (n+3).
+        const size = n + 3;
+
+        // Initialize matrix A and vector b of length (n+3)
+        let A = new Array(size).fill(null).map(() => new Array(size).fill(0));
+        let B = new Array(size).fill(0);
+
+        // Helper to evaluate the basis function B_j(t)
+        // j=0 => 1, j=1 => t, j=2 => t^2, j=3 => t^3,
+        // j>3 => (t - (j-3))^3_+ if t >= (j-3), else 0
+        function basis(j, t) {
+            if (j === 0) return 1;
+            if (j === 1) return t;
+            if (j === 2) return t * t;
+            if (j === 3) return t * t * t;
+            // for b_k, index j => k = j-3
+            const k = j - 3;
+            const val = t - k;
+            return (val > 0) ? val * val * val : 0;
+        }
+
+        // Helper to evaluate second derivative of B_j(t)
+        // B2''(t)=2, B3''(t)=6t, and for (t - k)^3_+, the second derivative is 6(t-k) if t>k, else 0
+        function basisSecondDeriv(j, t) {
+            if (j === 0) return 0;  // constant => 0
+            if (j === 1) return 0;  // linear => 0
+            if (j === 2) return 2;  // t^2 => 2
+            if (j === 3) return 6 * t; // t^3 => 6t
+            // for b_k
+            const k = j - 3;
+            const val = t - k;
+            return (val > 0) ? 6 * val : 0;
+        }
+
+        // 1) Interpolation conditions f(i) = vals[i], for i=0..n
+        //    That is: sum_j alpha_j * B_j(i) = vals[i]
+        for (let i = 0; i <= n; i++) {
+            for (let j = 0; j < size; j++) {
+                A[i][j] = basis(j, i);
+            }
+            B[i] = vals[i];
+        }
+
+        // 2) Natural boundary condition #1: f''(0) = 0
+        //    sum_j alpha_j * B_j''(0) = 0
+        {
+            const row = n + 1; // index for the boundary condition row
+            for (let j = 0; j < size; j++) {
+                A[row][j] = basisSecondDeriv(j, 0);
+            }
+            B[row] = 0;
+        }
+
+        // 3) Natural boundary condition #2: f''(n) = 0
+        //    sum_j alpha_j * B_j''(n) = 0
+        {
+            const row = n + 2;
+            for (let j = 0; j < size; j++) {
+                A[row][j] = basisSecondDeriv(j, n);
+            }
+            B[row] = 0;
+        }
+
+        // Solve A * alpha = B via a simple Gaussian elimination
+        const alpha = this.gaussSolve(A, B);
+        return alpha;
+    }
+
+    /**
+     * Naive Gaussian-elimination solver for A * x = b.
+     * Returns array x of the same length as b.
+     */
+    gaussSolve(A, b) {
+        const n = A.length;
+
+        // Forward elimination
+        for (let i = 0; i < n; i++) {
+            // Find pivot (largest absolute value in column i at or below row i)
+            let maxRow = i;
+            let maxVal = Math.abs(A[i][i]);
+            for (let r = i+1; r < n; r++) {
+                const val = Math.abs(A[r][i]);
+                if (val > maxVal) {
+                    maxVal = val;
+                    maxRow = r;
+                }
+            }
+            // Swap pivot row if needed
+            if (maxRow !== i) {
+                [A[i], A[maxRow]] = [A[maxRow], A[i]];
+                [b[i], b[maxRow]] = [b[maxRow], b[i]];
+            }
+
+            // Eliminate below row i
+            for (let r = i+1; r < n; r++) {
+                const factor = A[r][i] / A[i][i];
+                // Subtract factor * row_i from row_r
+                for (let c = i; c < n; c++) {
+                    A[r][c] -= factor * A[i][c];
+                }
+                b[r] -= factor * b[i];
+            }
+        }
+
+        // Back-substitution
+        let x = new Array(n).fill(0);
+        for (let i = n-1; i >= 0; i--) {
+            let sum = b[i];
+            for (let c = i+1; c < n; c++) {
+                sum -= A[i][c] * x[c];
+            }
+            x[i] = sum / A[i][i];
+        }
+        return x;
+    }
+
+    /**
+     * Evaluate f(t) = sum_j alpha_j * B_j(t).
+     */
+    evalSpline(t, alpha) {
+        let result = 0;
+        for (let j = 0; j < alpha.length; j++) {
+            // basis function:
+            if (j === 0) {
+                result += alpha[j] * 1;     // a0 * 1
+            } else if (j === 1) {
+                result += alpha[j] * t;     // a1 * t
+            } else if (j === 2) {
+                result += alpha[j] * t * t; // a2 * t^2
+            } else if (j === 3) {
+                result += alpha[j] * t * t * t; // a3 * t^3
+            } else {
+                const k = j - 3; // b_k
+                const val = t - k;
+                if (val > 0) {
+                    result += alpha[j] * (val * val * val);
+                }
+            }
+        }
+        return result;
+    }
+
+    draw() {
+        // If we don't have a valid spline, skip
+        if (this.alphaX.length === 0 || this.alphaY.length === 0) return;
+        if (this.points.length < 2) return;
+
+        // Draw the "control polygon" (just the points in the order we have them)
+        ctx.setLineDash([15, 8]);
+        ctx.globalAlpha = 0.3;
+        for (let i = 0; i < this.points.length - 1; i++) {
+            DrawLine(
+                this.points[i].drawX,   this.points[i].drawY,
+                this.points[i+1].drawX, this.points[i+1].drawY
+            );
+        }
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 1;
+
+        // Now draw the cubic spline by sampling from t=0..n
+        const n = this.points.length - 1;
+        const steps = 200; // how many samples in [0..n]
+        ctx.strokeStyle = "lime";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        for (let i = 0; i <= steps; i++) {
+            const t = (n * i) / steps; // subdivide [0..n]
+            const xVal = this.evalSpline(t, this.alphaX);
+            const yVal = this.evalSpline(t, this.alphaY);
+
+            const drawX = scaleBetweenRanges(
+                xVal, graphInfo.xMin, graphInfo.xMax, 0, canvas.width
+            );
+            const drawY = scaleBetweenRanges(
+                yVal, graphInfo.yMin, graphInfo.yMax, canvas.height, 0
+            );
+
+            if (i === 0) ctx.moveTo(drawX, drawY);
+            else         ctx.lineTo(drawX, drawY);
+        }
+        ctx.stroke();
+        ctx.closePath();
+    }
+}
+
+
+let cubicSpline = new CubicSpline(points);
+
 
 // Main Loop
 function graphUpdateLoop() {
@@ -499,11 +741,13 @@ function graphUpdateLoop() {
 
     // Update State
     while (accumulator >= timeStep) {
-        graphButtons.forEach(b => b.update());
+        //graphButtons.forEach(b => b.update());
         graph.update();
-        bezier.update();
-        tSlider.update();
+        // bezier.update();
+        //tSlider.update();
+        //newtonForm.update();
         //poly.update();
+        cubicSpline.update();
         accumulator -= timeStep;
     }
 
@@ -518,11 +762,13 @@ function graphUpdateLoop() {
 
     points.forEach(p => p.draw());
     graph.draw();
-    graphButtons.forEach(b => b.render());
-    bezier.draw();
-    if (bezier.method === "NLI-form") {
-        tSlider.render();
-    }
+    //graphButtons.forEach(b => b.render());
+    // bezier.draw();
+    // if (bezier.method === "NLI-form") {
+    //     tSlider.render();
+    // }
+    //newtonForm.draw();
+    cubicSpline.draw();
 
     // if no points, display text
     if (points.length == 0)
@@ -539,22 +785,6 @@ function graphUpdateLoop() {
 
         ctx.shadowBlur = 0;
     }
-
-    // display current method on top
-    ctx.font = "40px Outfit";
-    ctx.fillStyle = "white";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "top";
-    ctx.fillText("Current Method: " + bezier.method, canvas.width * 0.5, 15);
-
-    let textWidth = ctx.measureText("Current Method: " + bezier.method).width;
-
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(canvas.width * 0.5 - textWidth * 0.5, 50);
-    ctx.lineTo(canvas.width * 0.5 + textWidth * 0.5, 50);
-    ctx.stroke();
 
     // Wait for the next frame
     if (game.state == "Graph") {
