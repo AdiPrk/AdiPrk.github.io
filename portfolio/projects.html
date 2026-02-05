@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects | My Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body id="page-projects">
+
+    <canvas id="bg-canvas"></canvas>
+
+    <header>
+        <div class="logo">PORTFOLIO</div>
+        <nav>
+            <a href="index.html">Showcase</a>
+            <a href="projects.html" class="active">Projects</a>
+            <a href="resume.html">Resume</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1 class="page-title">My Projects</h1>
+        
+        <div class="project-grid">
+                <article class="project-card">
+                <div class="card-image">
+                    <img src="assets/radisthumb.png" alt="Radis Engine" loading="lazy">
+                </div>
+                <div class="card-content-wrap">
+                    <h3>Radis Engine</h3>
+                    <p>Radis is a custom C++ engine with a runtime-switchable Vulkan and OpenGL renderer, real-time ray tracing, and a GPU-driven asset pipeline.</p>
+                    <div class="tags">
+                        <span>C++</span>
+                        <span>Vulkan</span>
+                        <span>Ray Tracing</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="project-card">
+                <div class="card-image">
+                    <img src="assets/nlthumb.png" alt="NiteLite" loading="lazy">
+                </div>
+                <div class="card-content-wrap">
+                    <h3>NiteLite</h3>
+                    <p>Built a custom C++ game engine on a 9-person interdisciplinary team, featuring a 6M+ particle system optimized using NVIDIA Nsight.</p>
+                    <div class="tags">
+                        <span>C++</span>
+                        <span>Vulkan</span>
+                        <span>Particles</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="project-card">
+                <div class="card-image">
+                    <img src="assets/kkthumb.png" alt="KnuckleKnockout" loading="lazy">
+                </div>
+                <div class="card-content-wrap">
+                    <h3>Knuckle Knockout</h3>
+                    <p>Technical lead for a custom engine game shipped on Steam. Focused on OpenGL rendering, performant physics, and audio systems.</p>
+                    <div class="tags">
+                        <span>OpenGL</span>
+                        <span>Physics</span>
+                    </div>
+                </div>
+            </article>
+
+        </div>
+
+    </main>
+
+    <script src="src/script.js"></script>
+</body>
+</html>

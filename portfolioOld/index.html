@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <title>Aditya Prakash — Engine / Graphics (C++)</title>
+  <meta name="description" content="C++ engine / graphics programmer. Custom engines, rendering systems, performance." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <!-- Subtle particles background -->
+  <div id="bg" aria-hidden="true"></div>
+  <div id="grain" aria-hidden="true"></div>
+  <div id="fx" aria-hidden="true"></div>
+
+  <header class="header">
+    <div class="wrap header-inner">
+      <a class="name" href="#top" aria-label="Home">Aditya Prakash</a>
+      <nav class="nav" aria-label="Primary">
+        <a href="#work">Work</a>
+        <a href="#about">About</a>
+        <a class="nav-cta" href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap" id="top">
+    <section class="hero">
+      <p class="kicker">DigiPen RTIS ’26 · C++ / Rendering / Engine · US (WA preferred)</p>
+
+      <h1>Engine &amp; Graphics Programmer</h1>
+
+      <p class="subhead">
+        I build performant real-time systems: Vulkan ray tracing, GPU-driven pipelines, render graphs,
+        ECS architecture, and profiling-first optimization.
+      </p>
+
+      <div class="links">
+        <a class="btn" href="resume.pdf" target="_blank" rel="noopener">Resume</a>
+        <a class="btn ghost" href="https://github.com/adiprk" target="_blank" rel="noopener">GitHub</a>
+        <a class="btn ghost" href="https://linkedin.com/in/adiprk" target="_blank" rel="noopener">LinkedIn</a>
+        <a class="btn ghost" href="mailto:adityaprk04@gmail.com">Email</a>
+      </div>
+
+      
+    </section>
+
+    <section id="work" class="section">
+      <div class="section-title">
+        <h2>My Projects</h2>
+        <p class="section-sub"></p>
+      </div>
+
+      <a class="workrow" href="radis.html">
+        <div class="workrow-media">
+          <img
+            src="images/radisthumb.png"
+            alt="Radis engine thumbnail"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+
+        <div class="workrow-left">
+          <div class="workrow-title">
+            <h3>Radis</h3>
+            <span class="pill">Independent Project</span>
+            <span class="pill">C++</span>
+            <span class="pill">Vulkan</span>
+            <span class="pill">Ray Tracing</span>
+          </div>
+          <p class="workrow-desc">
+            Radis is a custom C++ engine with a runtime-switchable Vulkan/OpenGL renderer, real-time ray tracing, deferred HDR rendering, a custom render graph, a GPU-driven asset pipeline, and a modular ECS architecture.
+          </p>
+          <div class="workrow-metrics">
+            <span>~80% faster loads</span><span class="sep">·</span><span>RT BLAS/TLAS + SBT</span>
+          </div>
+        </div>
+
+        <div class="workrow-right">
+          <span class="arrow">View →</span>
+        </div>
+      </a>
+
+      <a class="workrow" href="nitelite.html">
+        <div class="workrow-media">
+          <img
+            src="images/nlthumb.png"
+            alt="NiteLite engine thumbnail"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+
+        <div class="workrow-left">
+          <div class="workrow-title">
+            <h3>NiteLite</h3>
+            <span class="pill">C++ · Vulkan</span>
+            <span class="pill">GPU-driven</span>
+          </div>
+          <p class="workrow-desc">
+            Built a custom C++ game engine on a 9-person interdisciplinary team, featuring a Vulkan renderer with GPU-driven rendering, multi-draw indirect, and a 6M+ particle system, optimized using RenderDoc and NVIDIA Nsight.
+          </p>
+          <div class="workrow-metrics">
+            <span>~90% CPU draw reduction</span><span class="sep">·</span><span>6M particles @ 60 FPS</span>
+          </div>
+        </div>
+
+        <div class="workrow-right">
+          <span class="arrow">View →</span>
+        </div>
+      </a>
+
+      <a class="workrow" href="knuckle.html">
+        <div class="workrow-media">
+          <img
+            src="images/kkthumb.png"
+            alt="Knuckle Knockout thumbnail"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+
+        <div class="workrow-left">
+          <div class="workrow-title">
+            <h3>Knuckle Knockout</h3>
+            <span class="pill">C++</span>
+            <span class="pill">OpenGL</span>
+            <span class="pill">Shipped</span>
+          </div>
+          <p class="workrow-desc">
+            Acted as technical lead to build a custom C++ game engine from scratch and ship a game on Steam. I worked on the OpenGL renderer, advanced post-processing, performant physics, and audio.
+          </p>
+          <div class="workrow-metrics">
+            <span>5,000+ dynamic bodies</span><span class="sep">·</span><span>~70% fewer SAT checks</span>
+          </div>
+        </div>
+
+        <div class="workrow-right">
+          <span class="arrow">View →</span>
+        </div>
+      </a>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <h2>Capabilities</h2>
+        <p class="section-sub"></p>
+      </div>
+
+      <div class="chipgrid">
+        <span class="chip">Render Graphs</span>
+        <span class="chip">Vulkan Ray Tracing</span>
+        <span class="chip">GPU-driven Rendering</span>
+        <span class="chip">Compute Pipelines</span>
+        <span class="chip">Profiling (Nsight / RenderDoc)</span>
+        <span class="chip">Asset Pipelines</span>
+        <span class="chip">ECS Architecture</span>
+        <span class="chip">Performance Optimization</span>
+      </div>
+    </section>
+
+    <section id="about" class="section">
+      <div class="section-title">
+        <h2>About Me</h2>
+        <!-- <p class="section-sub">A little context. Keep it short.</p> -->
+      </div>
+
+      <p class="desc">
+        I’m a DigiPen RTIS senior graduating in April 2026, focused on C++ engine and graphics programming.
+        I enjoy performance-oriented architecture, GPU-first approaches, and profiling-driven iteration.
+      </p>
+    </section>
+
+    <section id="contact" class="section">
+      <div class="section-title">
+        <h2>Contact</h2>
+        <p class="section-sub">Let’s talk.</p>
+      </div>
+
+      <p class="desc">
+        <a class="underline" href="mailto:adityaprk04@gmail.com">adityaprk04@gmail.com</a>
+        <span class="muted"> · </span>
+        <a class="underline" href="https://linkedin.com/in/adiprk" target="_blank" rel="noopener">LinkedIn</a>
+      </p>
+    </section>
+
+    <footer class="footer">
+      <span>© <span id="year"></span> Aditya Prakash</span>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+  <script defer src="main.js"></script>
+</body>
+</html>

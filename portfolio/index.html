@@ -1,198 +1,48 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="color-scheme" content="dark light" />
-  <title>Your Name — Engine / Graphics (C++)</title>
-  <meta name="description" content="C++ engine / graphics programmer. Custom engines, rendering systems, performance." />
-  <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Showcase | My Portfolio</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+<body id="page-showcase">
 
-<body>
-  <!-- Subtle particles background -->
-  <div id="bg" aria-hidden="true"></div>
-  <div id="grain" aria-hidden="true"></div>
-  <div id="fx" aria-hidden="true"></div>
+    <canvas id="bg-canvas"></canvas>
 
-  <header class="header">
-    <div class="wrap header-inner">
-      <a class="name" href="#top" aria-label="Home">Your Name</a>
-      <nav class="nav" aria-label="Primary">
-        <a href="#work">Work</a>
-        <a href="#about">About</a>
-        <a class="nav-cta" href="#contact">Contact</a>
-      </nav>
-    </div>
-  </header>
+    <header>
+        <div class="logo">PORTFOLIO</div>
+        <nav>
+            <a href="index.html" class="active">Showcase</a>
+            <a href="projects.html">Projects</a>
+            <a href="resume.html">Resume</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+    </header>
 
-  <main class="wrap" id="top">
-    <section class="hero">
-      <p class="kicker">DigiPen RTIS ’26 · C++ / Rendering / Engine · US (WA preferred)</p>
+    <main>
+        <section class="full-screen" data-color="0, 255, 255">
+            <div class="hero-content">
+                <h1>The Showcase</h1>
+                <p>Scroll to see the theme shift.</p>
+            </div>
+        </section>
 
-      <h1>Engine &amp; Graphics Programmer</h1>
+        <section class="full-screen" data-color="255, 0, 128">
+            <div class="content-box">
+                <h2>Creative Coding</h2>
+                <p>Experiments with WebGL and Canvas.</p>
+            </div>
+        </section>
 
-      <p class="subhead">
-        I build performant real-time systems: Vulkan ray tracing, GPU-driven pipelines, render graphs,
-        ECS architecture, and profiling-first optimization.
-      </p>
+        <section class="full-screen" data-color="255, 215, 0">
+            <div class="content-box">
+                <h2>System Architecture</h2>
+                <p>Backend logic and database design.</p>
+            </div>
+        </section>
+    </main>
 
-      <div class="links">
-        <a class="btn" href="resume.pdf" target="_blank" rel="noopener">Resume</a>
-        <a class="btn ghost" href="https://github.com/yourhandle" target="_blank" rel="noopener">GitHub</a>
-        <a class="btn ghost" href="https://linkedin.com/in/yourhandle" target="_blank" rel="noopener">LinkedIn</a>
-        <a class="btn ghost" href="mailto:you@email.com">Email</a>
-      </div>
-
-      <p class="hint" id="rendererStatus">Background: loading…</p>
-    </section>
-
-    <section id="work" class="section">
-      <div class="section-title">
-        <h2>Selected Work</h2>
-        <p class="section-sub">Short, impact-first. Details live in case studies.</p>
-      </div>
-
-      <a class="workrow" href="radis.html">
-        <div class="workrow-media">
-          <img
-            src="media/radis.webp"
-            alt="Radis engine thumbnail"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-
-        <div class="workrow-left">
-          <div class="workrow-title">
-            <h3>Radis</h3>
-            <span class="pill">C++ · Vulkan</span>
-            <span class="pill">Ray Tracing</span>
-          </div>
-          <p class="workrow-desc">
-            Custom engine focused on GPU-first rendering: RT GI, render graph orchestration, and a tight asset pipeline.
-          </p>
-          <div class="workrow-metrics">
-            <span>~80% faster loads</span><span class="sep">·</span><span>RT BLAS/TLAS + SBT</span>
-          </div>
-        </div>
-
-        <div class="workrow-right">
-          <span class="arrow">View →</span>
-        </div>
-      </a>
-
-      <a class="workrow" href="nitelite.html">
-        <div class="workrow-media">
-          <img
-            src="media/nitelite.webp"
-            alt="NiteLite engine thumbnail"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-
-        <div class="workrow-left">
-          <div class="workrow-title">
-            <h3>NiteLite</h3>
-            <span class="pill">C++ · Vulkan</span>
-            <span class="pill">GPU-driven</span>
-          </div>
-          <p class="workrow-desc">
-            Renderer + engine tech emphasizing draw-call scalability, compute particles, and profiling-driven iteration.
-          </p>
-          <div class="workrow-metrics">
-            <span>~90% CPU draw reduction</span><span class="sep">·</span><span>6M particles @ 60 FPS</span>
-          </div>
-        </div>
-
-        <div class="workrow-right">
-          <span class="arrow">View →</span>
-        </div>
-      </a>
-
-      <a class="workrow" href="knuckle.html">
-        <div class="workrow-media">
-          <img
-            src="media/knuckle.webp"
-            alt="Knuckle Knockout thumbnail"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-
-        <div class="workrow-left">
-          <div class="workrow-title">
-            <h3>Knuckle Knockout</h3>
-            <span class="pill">C++</span>
-            <span class="pill">OpenGL</span>
-            <span class="pill">Shipped</span>
-          </div>
-          <p class="workrow-desc">
-            Technical lead on a shipped title built on a custom engine: renderer, physics, tools, and team integration.
-          </p>
-          <div class="workrow-metrics">
-            <span>5,000+ dynamic bodies</span><span class="sep">·</span><span>~70% fewer SAT checks</span>
-          </div>
-        </div>
-
-        <div class="workrow-right">
-          <span class="arrow">View →</span>
-        </div>
-      </a>
-    </section>
-
-    <section class="section">
-      <div class="section-title">
-        <h2>Capabilities</h2>
-        <p class="section-sub">What I like building (and shipping).</p>
-      </div>
-
-      <div class="chipgrid">
-        <span class="chip">Render Graphs</span>
-        <span class="chip">Vulkan Ray Tracing</span>
-        <span class="chip">GPU-driven Rendering</span>
-        <span class="chip">Compute Pipelines</span>
-        <span class="chip">Profiling (Nsight / RenderDoc)</span>
-        <span class="chip">Asset Pipelines</span>
-        <span class="chip">ECS Architecture</span>
-        <span class="chip">Performance Optimization</span>
-      </div>
-    </section>
-
-    <section id="about" class="section">
-      <div class="section-title">
-        <h2>About</h2>
-        <p class="section-sub">A little context. Keep it short.</p>
-      </div>
-
-      <p class="desc">
-        I’m a DigiPen RTIS senior graduating in April 2026, focused on C++ engine and graphics programming.
-        I enjoy performance-oriented architecture, GPU-first approaches, and profiling-driven iteration.
-      </p>
-    </section>
-
-    <section id="contact" class="section">
-      <div class="section-title">
-        <h2>Contact</h2>
-        <p class="section-sub">Let’s talk.</p>
-      </div>
-
-      <p class="desc">
-        <a class="underline" href="mailto:you@email.com">you@email.com</a>
-        <span class="muted"> · </span>
-        <a class="underline" href="https://linkedin.com/in/yourhandle" target="_blank" rel="noopener">LinkedIn</a>
-      </p>
-    </section>
-
-    <footer class="footer">
-      <span>© <span id="year"></span> Your Name</span>
-    </footer>
-  </main>
-
-  <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
-  </script>
-  <script defer src="main.js"></script>
+    <script src="src/script.js"></script>
 </body>
 </html>
