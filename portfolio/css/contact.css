@@ -1,0 +1,162 @@
+/* --- Contact / Profile Page --- */
+.contact-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1000px;
+    padding-top: 60px;
+    overflow: hidden;
+}
+
+/* The Container that rotates */
+.tilt-container {
+    transition: transform 0.1s ease;
+    transform-style: preserve-3d;
+}
+
+/* The Glass Card */
+.glass-panel {
+    display: flex;
+    width: 900px;
+    max-width: 90vw;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.panel-section {
+    padding: 60px 50px;
+    flex: 1;
+}
+
+/* --- Left Side: About --- */
+.about-section {
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.about-section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    background: linear-gradient(90deg, #fff, #aaa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* [UPDATED] Better Typography for Bio */
+.bio-text {
+    font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-weight: 500;
+    font-size: 1.15rem; /* Matches showcase size */
+    color: #ffffff;
+    line-height: 1.7;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 1px rgba(0,0,0,0.5);
+    
+    margin-bottom: 30px;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid rgba(0, 255, 0, 0.3);
+    padding: 8px 16px;
+    border-radius: 30px;
+    color: #4ade80;
+    font-size: 0.9rem;
+    font-family: 'Consolas', 'Monaco', monospace; /* Match font */
+    width: fit-content;
+}
+
+.pulse {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #4ade80;
+    border-radius: 50%;
+    margin-right: 10px;
+    box-shadow: 0 0 0 rgba(74, 222, 128, 0.4);
+    animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+    0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+}
+
+/* --- Right Side: contact --- */
+.contact-section {
+    background: rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.link-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.contact-btn {
+    display: flex;
+    align-items: center;
+    padding: 20px 30px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    text-decoration: none;
+    color: white;
+    transition: all 0.3s ease;
+    
+    /* [UPDATED] Font consistency */
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 1.2rem;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+.contact-btn i {
+    font-size: 1.8rem;
+    margin-right: 20px;
+    width: 30px;
+    text-align: center;
+}
+
+/* Hover Effects */
+.contact-btn:hover {
+    transform: translateX(10px);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.contact-btn.email:hover { border-color: cyan; color: cyan; box-shadow: 0 0 20px rgba(0, 255, 255, 0.1); }
+.contact-btn.github:hover { border-color: #bd2c00; color: #bd2c00; box-shadow: 0 0 20px rgba(189, 44, 0, 0.2); }
+.contact-btn.linkedin:hover { border-color: #0077b5; color: #0077b5; box-shadow: 0 0 20px rgba(0, 119, 181, 0.2); }
+
+/* Mobile Stack */
+@media (max-width: 800px) {
+    .glass-panel {
+        flex-direction: column;
+        width: 95%;
+        margin-bottom: 50px;
+    }
+    .about-section { 
+        border-right: none; 
+        border-bottom: 1px solid rgba(255,255,255,0.1); 
+        padding-bottom: 30px;
+    }
+    .contact-section {
+        padding-top: 30px;
+    }
+    .tilt-container { transform: none !important; }
+}

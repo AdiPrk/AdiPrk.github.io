@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Showcase | My Portfolio</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/showcase.css">
 </head>
 <body id="page-showcase">
 
@@ -21,26 +22,57 @@
     </header>
 
     <main>
-        <section class="full-screen" data-color="0, 255, 255">
-            <div class="hero-content">
-                <h1>The Showcase</h1>
-                <p>Scroll to see the theme shift.</p>
+        
+        <section class="showcase-section section-cyan" data-color="0, 255, 255" data-type="circuit">
+            <div class="showcase-grid">
+                <div class="text-column">
+                    <h2>Real-Time Hardware Accelerated Raytracing in Vulkan</h2>
+                    <p>
+                        By leveraging hardware acceleration, I built a renderer capable of physically accurate lighting, shadows, and reflections without compromising on frame rates. I also architected a custom heat-map tool to visualize BVH traversal costs, ensuring the system wasn't just visually stunning, but mathematically efficient.
+                    </p>
+                    <a href="https://github.com/AdiPrk/Radis" class="showcase-btn">View GitHub</a>
+                </div>
+                <div class="video-column">
+                    <video autoplay loop muted playsinline poster="assets/radisthumb.png">
+                        <source src="assets/radis-demo.mp4" type="video/mp4">
+                    </video>
+                </div>
             </div>
         </section>
 
-        <section class="full-screen" data-color="255, 0, 128">
-            <div class="content-box">
-                <h2>Creative Coding</h2>
-                <p>Experiments with WebGL and Canvas.</p>
+        <section class="showcase-section section-magenta" data-color="255, 0, 128" data-type="network">
+            <div class="showcase-grid">
+                <div class="text-column">
+                    <h2>GPU-Driven 6 Million Particle Simulation</h2>
+                    <p>
+                        My goal for this project was to push the GPU to its absolute limit. I engineered a high-performance simulation pipeline using compute shaders, indirect drawing, sorting, culling, and more optimizations to handle over 6 million particles simultaneously. By rigorously profiling memory access patterns through <strong>NVIDIA Nsight</strong>, I optimized the system to maintain a stable, playable framerate without creating CPU bottlenecks.
+                    </p>
+                </div>
+                 <div class="video-column">
+                    <video autoplay loop muted playsinline poster="assets/nlthumb.png">
+                        <source src="assets/particle-demo.mp4" type="video/mp4">
+                    </video>
+                </div>
             </div>
         </section>
 
-        <section class="full-screen" data-color="255, 215, 0">
-            <div class="content-box">
-                <h2>System Architecture</h2>
-                <p>Backend logic and database design.</p>
+        <section class="showcase-section section-purple" data-color="191, 0, 255" data-type="stream">
+            <div class="showcase-grid">
+                <div class="text-column">
+                    <h2>Custom Engine Indie Game Shipped on Steam</h2>
+                    <p>
+                        There is a massive difference between a tech demo and a shipped product. As the Technical Lead for Knuckle Knockout, I was responsible for bridging that gap. I architected our OpenGL post-processing stack to achieve our unique visual style and wrote a low-latency audio system to ensure combat felt responsive. Seeing players actually enjoy a game running on code I wrote from scratch was one of the most rewarding moments of my career.
+                    </p>
+                    <a href="https://store.steampowered.com/app/3198290/Knuckle_Knockout/" class="showcase-btn">View Steam Page</a>
+                </div>
+                 <div class="video-column">
+                    <video autoplay loop muted playsinline poster="assets/kkthumb.png">
+                        <source src="assets/knuckle-demo.mp4" type="video/mp4">
+                    </video>
+                </div>
             </div>
         </section>
+
     </main>
 
     <script src="src/script.js"></script>

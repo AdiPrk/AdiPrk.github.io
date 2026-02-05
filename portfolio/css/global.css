@@ -1,0 +1,32 @@
+/* --- Core Reset --- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+    background-color: #080808;
+    overflow-x: hidden;
+}
+
+/* --- Fixed Elements --- */
+#bg-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: -1;
+}
+
+header {
+    position: fixed; top: 0; width: 100%;
+    padding: 20px 40px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+    z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+header nav a {
+    color: #888; text-decoration: none; margin-left: 20px;
+    font-weight: bold; transition: 0.3s;
+}
+
+header nav a:hover, header nav a.active { color: white; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
