@@ -345,7 +345,7 @@ function instantScramble(element) {
     // We want everything to finish in roughly 15 frames (0.25 seconds)
     // So we calculate how many characters to reveal per frame.
     const length = originalText.length;
-    const step = Math.max(1, Math.ceil(length / 12)); 
+    const step = Math.max(1, Math.ceil(length / 15)); 
 
     const interval = setInterval(() => {
         element.innerText = originalText
@@ -372,7 +372,7 @@ function instantScramble(element) {
         // 5. Increment
         iterations += step; 
 
-    }, 20); // Run every 20ms (very fast)
+    }, 20); // Run every 20ms
 }
 
 // Observer Logic
