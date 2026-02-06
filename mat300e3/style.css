@@ -1,0 +1,15 @@
+html, body{
+    margin:0;
+    padding:0;
+    background-color: rgb(10, 10, 10);
+    font-family: 'Comfortaa';
+    font-size: 22px;
+    overflow: hidden;
+}
+
+canvas {
+    position:absolute;
+    left:0;
+    top:0;
+    margin:0;
+}

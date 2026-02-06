@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Showcase | My Portfolio</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/showcase.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body id="page-showcase">
+
+    <canvas id="bg-canvas"></canvas>
+
+    <header>
+        <div class="logo">Aditya Prakash</div>
+        <nav>
+            <a href="index.html" class="active">Showcase</a>
+            <a href="projects.html">Projects</a>
+            <a href="resume.html">Resume</a>
+        </nav>
+    </header>
+
+    <main>
+        
+        <section class="showcase-section section-cyan" data-color="0, 255, 255" data-type="circuit">
+            <div class="showcase-grid">
+                <div class="text-column">
+                    <h2>Real-Time Hardware Accelerated Raytracing in Vulkan</h2>
+                    <p>
+                        By leveraging hardware-accelerated ray tracing, I developed a renderer capable of physically accurate lighting, shadows, and reflections while maintaining real-time performance. The system also supports deferred rendering, runtime Vulkan/OpenGL backend switching, and much more!
+                    </p>
+                    <a href="https://github.com/AdiPrk/Radis" class="showcase-btn">View GitHub</a>
+                </div>
+                <div class="video-column">
+                    <video autoplay loop muted playsinline poster="assets/radisthumb.png">
+                        <source src="assets/radis-demo.webm" type="video/webm">
+                    </video>
+                </div>
+            </div>
+        </section>
+
+        <section class="showcase-section section-magenta" data-color="255, 0, 128" data-type="network">
+            <div class="showcase-grid">
+                <div class="text-column">
+                    <h2>GPU-Driven 6 Million Particle Simulation</h2>
+                    <p>
+                        My goal for this project was to push the GPU to its absolute limit. I engineered a high-performance simulation pipeline using compute shaders, indirect drawing, sorting, culling, and more optimizations to handle over 6 million particles simultaneously. By rigorously profiling memory access patterns through <strong>NVIDIA Nsight</strong>, I optimized the system to maintain a stable, playable framerate without creating CPU bottlenecks.
+                    </p>
+                </div>
+                 <div class="video-column">
+                    <video autoplay loop muted playsinline poster="assets/nlthumb.png">
+                        <source src="assets/particle-demo.webm" type="video/webm">
+                    </video>
+                </div>
+            </div>
+        </section>
+
+        <section class="showcase-section section-purple" data-color="191, 0, 255" data-type="stream">
+            <div class="showcase-grid">
+                <div class="text-column">
+                    <h2>Custom C++ Game Shipped on Steam</h2>
+                    <p>
+                        There is a massive difference between a tech demo and a shipped product. As the Technical Lead for Knuckle Knockout, I was responsible for bridging that gap. I architected our OpenGL post-processing stack, wrote efficient physics from scratch, and built a low-latency audio system to ensure combat felt responsive. Seeing players enjoy the game at our playtest and wanting to play more was an extremely rewarding moment.
+                    </p>
+                    <a href="https://store.steampowered.com/app/3198290/Knuckle_Knockout/" class="showcase-btn">View Steam Page</a>
+                </div>
+                 <div class="video-column">
+                    <video autoplay loop muted playsinline poster="assets/kkthumb.png">
+                        <source src="assets/knockout-demo.webm" type="video/webm">
+                    </video>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <a href="mailto:adityaprk04@gmail.com" class="footer-link email" aria-label="Email Me">
+                <i class="fas fa-envelope"></i>
+                <span class="link-text">Email Me</span>
+            </a>
+            <a href="https://github.com/adiprk" target="_blank" class="footer-link github" aria-label="GitHub">
+                <i class="fab fa-github"></i>
+                <span class="link-text">GitHub</span>
+            </a>
+            <a href="https://www.linkedin.com/in/adiprk" target="_blank" class="footer-link linkedin" aria-label="LinkedIn">
+                <i class="fab fa-linkedin"></i>
+                <span class="link-text">LinkedIn</span>
+            </a>
+        </div>
+    </footer>
+
+    <script src="src/script.js"></script>
+</body>
+</html>

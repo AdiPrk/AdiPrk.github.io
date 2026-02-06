@@ -1,0 +1,148 @@
+/* --- Showcase Page Styles --- */
+
+/* 1. Base Section Style */
+.showcase-section {
+    position: relative;
+    z-index: 2;
+    min-height: 90vh;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    /* Very tight side padding to max out width */
+    padding: 80px 2%; 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+    transition: background 0.5s ease;
+}
+
+/* 2. The Layout Grid */
+.showcase-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr; 
+    gap: 60px; 
+    max-width: 1800px;
+    width: 100%;
+    align-items: center;
+    z-index: 2; 
+}
+
+/* Zig-Zag Pattern */
+.showcase-section:nth-child(even) .showcase-grid { direction: rtl; }
+.showcase-section:nth-child(even) .showcase-grid > * { direction: ltr; }
+
+/* 3. Text Styling */
+.text-column {
+    min-width: 0;
+    position: relative;
+    z-index: 10;
+}
+
+.text-column h2 {
+    font-size: clamp(2rem, 3vw, 3.2rem); 
+    line-height: 1.15;
+    margin-bottom: 25px;
+    color: white;
+    text-shadow: 0 0 30px rgba(0,0,0,0.8);
+    text-wrap: balance; 
+}
+
+.text-column p {
+    /* 1. Use a better Monospace stack. 
+       Consolas and Monaco are much thicker/cleaner than Courier New */
+    font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
+    
+    /* 2. Increase Weight & Size */
+    font-weight: 500; /* Makes it "Medium" weight if available */
+    font-size: 1.2rem; /* A tiny bit bigger */
+    
+    /* 3. Maximize Contrast */
+    color: #ffffff; /* Pure white pops more than #e0e0e0 */
+    
+    /* 4. Readability Tweaks */
+    line-height: 1.8; /* More breathing room between lines */
+    letter-spacing: 0.5px; /* Monospace reads better with slight spacing */
+    
+    /* 5. The "Fake Bold" Trick: 
+       Adds a tiny shadow to thicken the font rendering without making it fully bold */
+    text-shadow: 0 0 1px rgba(0,0,0,0.5); 
+
+    /* Background styling (Keep your existing glass effect) */
+    margin-bottom: 30px;
+    background: rgba(0,0,0,0.6);
+    padding: 30px;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15); /* Slightly brighter border */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.showcase-btn {
+    display: inline-block;
+    padding: 15px 40px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    border-radius: 8px;
+}
+
+.showcase-btn:hover { background: white; color: black; transform: translateY(-2px); }
+
+/* 4. Video Styling */
+.video-column {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: rgba(0,0,0,0.5);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.video-column:hover { transform: scale(1.02); }
+
+.video-column video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* 5. BACKGROUND PATTERNS (Unchanged) */
+.section-cyan {
+    background-color: rgba(0, 20, 20, 0.6); 
+    background-image: linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+.section-cyan h2 { color: cyan; text-shadow: 0 0 20px rgba(0,255,255,0.4); }
+.section-cyan .showcase-btn:hover { background: cyan; box-shadow: 0 0 20px cyan; }
+
+.section-magenta {
+    background-color: rgba(20, 0, 10, 0.6);
+    background-image: radial-gradient(rgba(255, 0, 128, 0.15) 1.5px, transparent 1.5px);
+    background-size: 20px 20px;
+}
+.section-magenta h2 { color: #ff0080; text-shadow: 0 0 20px rgba(255,0,128,0.4); }
+.section-magenta .showcase-btn:hover { background: #ff0080; box-shadow: 0 0 20px #ff0080; }
+
+.section-purple {
+    background-color: rgba(15, 0, 20, 0.6);
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(191, 0, 255, 0.1) 3px, rgba(191, 0, 255, 0.1) 4px);
+}
+.section-purple h2 { color: #bf00ff; text-shadow: 0 0 20px rgba(191,0,255,0.4); }
+.section-purple .showcase-btn:hover { background: #bf00ff; box-shadow: 0 0 20px #bf00ff; }
+
+/* Mobile Response */
+@media (max-width: 1000px) {
+    .showcase-grid { grid-template-columns: 1fr; gap: 40px; }
+    .showcase-section:nth-child(even) .showcase-grid { direction: ltr; }
+    .text-column { text-align: center; order: 2; }
+    .video-column { order: 1; }
+}

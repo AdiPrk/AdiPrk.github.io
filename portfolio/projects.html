@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects | My Portfolio</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/projects.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body id="page-projects">
+
+    <canvas id="bg-canvas"></canvas>
+
+    <header>
+        <div class="logo">Aditya Prakash</div>
+        <nav>
+            <a href="index.html">Showcase</a>
+            <a href="projects.html" class="active">Projects</a>
+            <a href="resume.html">Resume</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1 class="page-title">My Projects</h1>
+        
+        <div class="project-grid">
+            
+            <article class="project-card">
+                <div class="card-image">
+                    <img src="assets/radisthumb.png" alt="Radis Engine" loading="lazy">
+                </div>
+                <div class="card-content-wrap">
+                    <div class="card-header">
+                        <h3>Radis Engine</h3>
+                        <div class="card-links">
+                            <a href="https://github.com/AdiPrk/Radis" target="_blank" title="View Source">
+                                <i class="fab fa-github"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <p>A high-performance C++ engine built from scratch with a runtime-switchable Vulkan and OpenGL renderer, real-time hardware accelerated ray tracing, deferred rendering, custom render graph, GPU-driven asset pipeline, and much more!</p>
+                    <div class="tags">
+                        <span>C++</span>
+                        <span>Vulkan</span>
+                        <span>Ray Tracing</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="project-card">
+                <div class="card-image">
+                    <img src="assets/nlthumb.png" alt="NiteLite" loading="lazy">
+                </div>
+                <div class="card-content-wrap">
+                    <div class="card-header">
+                        <h3>NiteLite</h3>
+                        </div>
+                    <p>NiteLite is a custom C++ 3D game engine made from scratch with a 9-person interdisciplinary team! This engine has been used by designers to deliver fully playable games. I co-architected a Vulkan renderer, created a fully GPU-driven particle system, and implemented MSDF text.</p>
+                    <div class="tags">
+                        <span>C++</span>
+                        <span>Vulkan</span>
+                        <span>Particles</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="project-card">
+                <div class="card-image">
+                    <img src="assets/kkthumb.png" alt="KnuckleKnockout" loading="lazy">
+                </div>
+                <div class="card-content-wrap">
+                    <div class="card-header">
+                        <h3>Knuckle Knockout</h3>
+                        <div class="card-links">
+                            <a href="https://store.steampowered.com/app/3198290/Knuckle_Knockout/" target="_blank" title="View on Steam">
+                                <i class="fab fa-steam"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <p>An action-packed 2D platformer fighting game for 2-4 players. Made with a custom C++ game engine from scratch, and shipped on Steam! I was the technical lead and focused on OpenGL rendering, performant physics, UI, and audio systems.</p>
+                    <div class="tags">
+                        <span>C++</span>
+                        <span>OpenGL</span>
+                        <span>Physics</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="project-card">
+                <div class="card-image">
+                    <img src="assets/hsthumb.png" alt="HideAndSeek" loading="lazy">
+                </div>
+                <div class="card-content-wrap">
+                    <div class="card-header">
+                        <h3>Hide and Seek</h3>
+                        <div class="card-links">
+                            <a href="https://store.steampowered.com/app/3198290/Knuckle_Knockout/" target="_blank" title="View on Steam">
+                                <i class="fab fa-steam"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <p>
+                        Hide and Seek is an atmospheric game built over ten weeks featuring raycasting-based lighting mechanics and audio-driven gameplay. Grab your headphones and rely on sound cues to survive encounters between a friendly and hostile ghost!
+                    </p>
+                    <div class="tags">
+                        <span>C++</span>
+                        <span>Raycasting</span>
+                        <span>Audio</span>
+                    </div>
+                </div>
+            </article>
+
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <a href="mailto:adityaprk04@gmail.com" class="footer-link email" aria-label="Email Me">
+                <i class="fas fa-envelope"></i>
+                <span class="link-text">Email Me</span>
+            </a>
+            <a href="https://github.com/adiprk" target="_blank" class="footer-link github" aria-label="GitHub">
+                <i class="fab fa-github"></i>
+                <span class="link-text">GitHub</span>
+            </a>
+            <a href="https://www.linkedin.com/in/adiprk" target="_blank" class="footer-link linkedin" aria-label="LinkedIn">
+                <i class="fab fa-linkedin"></i>
+                <span class="link-text">LinkedIn</span>
+            </a>
+        </div>
+    </footer>
+
+    <script src="src/script.js"></script>
+</body>
+</html>

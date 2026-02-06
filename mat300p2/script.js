@@ -282,6 +282,7 @@ class BernsteinPolynomial {
 
 // let poly = new BernsteinPolynomial(degreeSlider.value, "BB-form");
 
+
 class BezierCurve {
     constructor(controlPoints, method = "NLI-form") {
         this.controlPoints = controlPoints;
