@@ -10,8 +10,7 @@
     margin-bottom: 50px; 
     border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
     padding-bottom: 20px;
-    /* Made gradient slightly brighter to match new high-contrast text */
-    background: linear-gradient(90deg, #fff, #aaa);
+    background: linear-gradient(90deg, #fff, #888);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     display: inline-block;
@@ -72,19 +71,57 @@
     flex-direction: column;
 }
 
-.project-card h3 {
-    font-size: 1.8rem;
+/* NEW: Flex container for Title + Links */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Align to top if title wraps */
     margin-bottom: 10px;
-    color: white;
-    text-shadow: 0 0 10px rgba(0,0,0,0.5); /* Added subtle shadow for pop */
+    gap: 15px;
 }
 
-/* [UPDATED] Better Typography for descriptions */
+.project-card h3 {
+    font-size: 1.8rem;
+    color: white;
+    text-shadow: 0 0 10px rgba(0,0,0,0.5);
+    margin: 0; /* Remove margin since parent handles gap */
+    line-height: 1.2;
+}
+
+/* NEW: Link Styles */
+.card-links {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0; /* Prevent icons from squishing */
+}
+
+.card-links a {
+    color: #888;
+    font-size: 1.4rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    text-decoration: none;
+}
+
+.card-links a:hover {
+    color: cyan;
+    background: rgba(0, 255, 255, 0.1);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+    transform: rotate(10deg); /* Subtle playful tilt */
+}
+
+/* Better Typography for descriptions */
 .project-card p {
     font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
     font-weight: 500;
-    font-size: 1rem; /* slightly larger than 0.95rem */
-    color: #ffffff; /* Pure white */
+    font-size: 1rem;
+    color: #ffffff;
     line-height: 1.6;
     letter-spacing: 0.5px;
     text-shadow: 0 0 1px rgba(0,0,0,0.5);
@@ -102,7 +139,7 @@
 }
 
 .tags span {
-    font-family: 'Consolas', 'Monaco', monospace; /* Match font */
+    font-family: 'Consolas', 'Monaco', monospace;
     font-size: 0.75rem;
     padding: 6px 12px;
     background: rgba(0, 255, 255, 0.05);

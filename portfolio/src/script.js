@@ -4,9 +4,7 @@ let particlesArray = [];
 
 // Determine which page we are on
 const isShowcase = document.body.id === 'page-showcase';
-const isInteractivePage = document.body.id === 'page-projects' || 
-                          document.body.id === 'page-resume' || 
-                          document.body.id === 'page-contact';
+const isInteractivePage = document.body.id === 'page-projects' || document.body.id === 'page-resume';
 
 // Variables for Showcase Scroll Logic
 let sectionMap = [];
@@ -98,7 +96,6 @@ class Particle {
         this.density = (Math.random() * 30) + 1;
         
         // Base Speed (Pixels per SECOND now, not per frame)
-        // We multiply by ~60 to match previous feel on 60hz screens
         this.speedX = (Math.random() * 2 - 1) * 60; 
         this.speedY = (Math.random() * 2 - 1) * 60;
         
@@ -112,7 +109,6 @@ class Particle {
         if (isInteractivePage && mouse.x != null) {
             let dx = mouse.x - this.x;
             let dy = mouse.y - this.y;
-            // Cheap distance check first (bounding box) to avoid sqrt
             if (Math.abs(dx) < mouse.radius && Math.abs(dy) < mouse.radius) {
                 let distance = Math.sqrt(dx * dx + dy * dy);
                 if (distance < mouse.radius) {
@@ -120,15 +116,13 @@ class Particle {
                     const forceDirectionY = dy / distance;
                     const force = (mouse.radius - distance) / mouse.radius;
                     
-                    // Apply movement with Delta Time
-                    const moveX = forceDirectionX * force * this.density * 20; // boost for dt
+                    const moveX = forceDirectionX * force * this.density * 20;
                     const moveY = forceDirectionY * force * this.density * 20;
                     
                     this.x -= moveX * deltaTime;
                     this.y -= moveY * deltaTime;
                 }
             } else {
-                // Return to base
                 if (this.x !== this.baseX) { 
                     let dx = this.x - this.baseX; 
                     this.x -= dx * 5 * deltaTime; 
@@ -154,31 +148,24 @@ class Particle {
 
             let speedMultiplier = 0.05;
             if (currentType === 'circuit') {
-                // CIRCUIT
-                this.circuitTimer += deltaTime * speedMultiplier * 60; // Normalize timer to frames
+                this.circuitTimer += deltaTime * speedMultiplier * 60;
                 if (this.circuitTimer > 60) {
                     this.axisLock = this.axisLock === 'x' ? 'y' : 'x';
                     this.circuitTimer = 0;
                 }
-                
                 if (this.axisLock === 'x') {
                     this.x += this.speedX * 2 * speedMultiplier * deltaTime;
                 } else {
                     this.y += this.speedY * 2 * speedMultiplier * deltaTime;
                 }
-
             } else if (currentType === 'stream') {
-                // STREAM
                 this.x += this.speedX * 4 * speedMultiplier * deltaTime;
                 this.y += this.speedY * 0.2 * speedMultiplier * deltaTime;
-                
             } else {
-                // DEFAULT
                 this.x += this.speedX * speedMultiplier * deltaTime;
                 this.y += this.speedY * speedMultiplier * deltaTime;
             }
 
-            // Edge Wrapping
             if (this.x > canvas.width) this.x = 0;
             if (this.x < 0) this.x = canvas.width;
             if (this.y > canvas.height) this.y = 0;
@@ -189,6 +176,7 @@ class Particle {
     draw(neighbors) {
         let activeColor = 'rgba(255, 255, 255, 0.3)'; 
         let currentType = 'default';
+        let currentSection = null; // We need the whole section object now
 
         if (isShowcase) {
             const absoluteY = this.y + window.scrollY;
@@ -196,6 +184,7 @@ class Particle {
                 if (absoluteY >= sec.top && absoluteY < sec.bottom) {
                     activeColor = sec.color;
                     currentType = sec.type;
+                    currentSection = sec;
                     break;
                 }
             }
@@ -208,30 +197,73 @@ class Particle {
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
 
-        // --- OPTIMIZED NETWORK DRAWING ---
+        // --- OPTIMIZED NETWORK DRAWING WITH LINE CHOPPING ---
         if (currentType === 'network') {
-            // We use the 'neighbors' passed from the grid query, NOT the full array
             for (let p of neighbors) {
                 if (p === this) continue;
 
                 let dx = this.x - p.x;
                 let dy = this.y - p.y;
-                // Optimization: compare squared distance to avoid Math.sqrt
                 let distSq = dx * dx + dy * dy;
                 let connDistSq = connectionDistance * connectionDistance;
 
                 if (distSq < connDistSq) {
-                    ctx.beginPath();
-                    // We only do the sqrt here for opacity calculation
                     let distance = Math.sqrt(distSq);
                     let opacity = 1 - (distance / connectionDistance);
                     
-                    let lineColor = activeColor.replace('1)', opacity + ')');
-                    ctx.strokeStyle = lineColor;
-                    ctx.lineWidth = 1;
-                    ctx.moveTo(this.x, this.y);
-                    ctx.lineTo(p.x, p.y);
-                    ctx.stroke();
+                    // 1. Identify Neighbor's Section
+                    let pAbsY = p.y + window.scrollY;
+                    let pSection = null;
+                    if (isShowcase) {
+                         for(let sec of sectionMap) {
+                             if (pAbsY >= sec.top && pAbsY < sec.bottom) {
+                                 pSection = sec;
+                                 break;
+                             }
+                         }
+                    }
+                    
+                    let pColor = pSection ? pSection.color : activeColor;
+
+                    // 2. If sections differ, split the line!
+                    if (currentSection && pSection && currentSection !== pSection) {
+                        
+                        // Determine the boundary Y (Absolute)
+                        // If I am above neighbor, boundary is my bottom. If below, my top.
+                        let boundaryAbsY = (this.y < p.y) ? currentSection.bottom : currentSection.top;
+                        let boundaryScreenY = boundaryAbsY - window.scrollY;
+                        
+                        // Linear Interpolation to find Intersection X
+                        // t = (Y_target - Y_start) / (Y_end - Y_start)
+                        let t = (boundaryScreenY - this.y) / (p.y - this.y);
+                        let splitX = this.x + t * (p.x - this.x);
+                        
+                        // Draw Segment 1 (My Color)
+                        ctx.beginPath();
+                        ctx.strokeStyle = activeColor.replace('1)', opacity + ')');
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(this.x, this.y);
+                        ctx.lineTo(splitX, boundaryScreenY);
+                        ctx.stroke();
+
+                        // Draw Segment 2 (Neighbor Color)
+                        ctx.beginPath();
+                        ctx.strokeStyle = pColor.replace('1)', opacity + ')');
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(splitX, boundaryScreenY);
+                        ctx.lineTo(p.x, p.y);
+                        ctx.stroke();
+
+                    } else {
+                        // 3. Standard Single Line Draw
+                        ctx.beginPath();
+                        let lineColor = activeColor.replace('1)', opacity + ')');
+                        ctx.strokeStyle = lineColor;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(this.x, this.y);
+                        ctx.lineTo(p.x, p.y);
+                        ctx.stroke();
+                    }
                 }
             }
         }
@@ -241,7 +273,7 @@ class Particle {
 // 3. Init
 function init() {
     particlesArray = [];
-    let numberOfParticles = (canvas.width * canvas.height) / 7500;
+    let numberOfParticles = (canvas.width * canvas.height) / 10000;
     
     for (let i = 0; i < numberOfParticles; i++) {
         particlesArray.push(new Particle());
@@ -298,3 +330,81 @@ window.addEventListener('mouseout', () => {
 resize();
 init();
 requestAnimationFrame(animate);
+
+const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+";
+
+function instantScramble(element) {
+    // 1. Setup
+    const originalText = element.dataset.value; 
+    let iterations = 0;
+    
+    // 2. Make visible immediately
+    element.style.visibility = 'visible';
+    
+    // 3. Adaptive Speed: 
+    // We want everything to finish in roughly 15 frames (0.25 seconds)
+    // So we calculate how many characters to reveal per frame.
+    const length = originalText.length;
+    const step = Math.max(1, Math.ceil(length / 12)); 
+
+    const interval = setInterval(() => {
+        element.innerText = originalText
+            .split("")
+            .map((letter, index) => {
+                // Formatting: Keep spaces and newlines clean
+                if (letter === " " || letter === "\n") return letter;
+                
+                // If we passed this index, show real letter
+                if(index < iterations) {
+                    return originalText[index];
+                }
+                // Otherwise, show random tech character
+                return chars[Math.floor(Math.random() * chars.length)];
+            })
+            .join("");
+        
+        // 4. Resolve Condition
+        if(iterations >= length) { 
+            clearInterval(interval);
+            element.innerText = originalText; // Ensure perfect finish
+        }
+        
+        // 5. Increment
+        iterations += step; 
+
+    }, 20); // Run every 20ms (very fast)
+}
+
+// Observer Logic
+document.addEventListener("DOMContentLoaded", () => {
+    
+    // Select EVERYTHING containing text
+    // We exclude the .link-text in the footer to avoid breaking the hover effect
+    const targets = document.querySelectorAll('h1, h2, h3, p:not(.link-text), .tags span, .showcase-btn, .contact-btn, .bio-text');
+
+    targets.forEach(el => {
+        // Store original text
+        el.dataset.value = el.innerText;
+        
+        // Hide initially to prevent "flash of unstyled content"
+        el.style.visibility = 'hidden'; 
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const target = entry.target;
+                
+                // Run the effect immediately
+                instantScramble(target);
+
+                // Stop observing so it doesn't run again
+                observer.unobserve(target);
+            }
+        });
+    }, {
+        threshold: 0.1 // Trigger as soon as 10% is visible (Instant feel)
+    });
+
+    targets.forEach(el => observer.observe(el));
+});
