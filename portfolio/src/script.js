@@ -406,5 +406,5 @@ document.addEventListener("DOMContentLoaded", () => {
         threshold: 0.1 // Trigger as soon as 10% is visible (Instant feel)
     });
 
-    targets.forEach(el => observer.observe(el));
+    targets.forEach(el => observer.observe(el));    
 });
