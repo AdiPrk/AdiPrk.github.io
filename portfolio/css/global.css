@@ -203,3 +203,47 @@ footer:hover {
     color: #6ec6ff; 
     text-shadow: none; /* Clean */
 }
+
+/* --- Debug HUD (bottom-left) --- */
+#debug-hud {
+    position: fixed;
+    left: 14px;
+    bottom: 14px;
+    z-index: 9999;
+    display: none;
+
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+    line-height: 1.35;
+    letter-spacing: 0.2px;
+
+    color: rgba(255,255,255,0.92);
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 10px 12px;
+
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+
+    pointer-events: none; /* never blocks clicks */
+    user-select: none;
+}
+
+#debug-hud .row {
+    display: grid;
+    grid-template-columns: 70px auto;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+#debug-hud .k {
+    color: rgba(255,255,255,0.65);
+}
+
+#debug-hud .v {
+    color: rgba(0,255,255,0.95);
+    text-align: right;
+}

@@ -7,10 +7,19 @@
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/showcase.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body id="page-showcase">
 
     <canvas id="bg-canvas"></canvas>
+
+    <div id="debug-hud" aria-hidden="true" >
+        <pre id="dbg-perf" style="margin:8px 0 0;white-space:pre;font:12px/1.2 monospace;"></pre>
+        <div class="row"><span class="k">FPS</span><span class="v" id="dbg-fps">--</span></div>
+        <div class="row"><span class="k">Frame</span><span class="v" id="dbg-ms">--</span></div>
+        <div class="row"><span class="k">Particles</span><span class="v" id="dbg-particles">--</span></div>
+        <div class="row"><span class="k">DPR</span><span class="v" id="dbg-dpr">--</span></div>
+    </div>
 
     <header>
         <div class="logo">Aditya Prakash</div>
@@ -92,6 +101,6 @@
         </div>
     </footer>
 
-    <script src="src/script.js"></script>
+    <script src="src/showcase.js"></script>
 </body>
 </html>

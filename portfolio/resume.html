@@ -6,6 +6,7 @@
     <title>Resume | My Portfolio</title>
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/resume.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body id="page-resume">
 
@@ -22,10 +23,22 @@
 
     <main class="resume-wrapper">
         <div class="pdf-container">
-            <iframe src="assets/resume.pdf#view=FitH" title="Resume">
-                <p>Your browser does not support PDFs. 
-                <a href="assets/resume.pdf">Download the PDF</a>.</p>
-            </iframe>
+            <object data="assets/resume.pdf" type="application/pdf" width="100%" height="100%">
+                <iframe
+                src="assets/resume.pdf"
+                title="Resume PDF"
+                width="100%"
+                height="100%"
+                loading="lazy"
+                referrerpolicy="no-referrer"
+                ></iframe>
+
+                <div class="pdf-fallback">
+                <p>PDF preview isn’t supported on this device.</p>
+                <a class="btn" href="assets/resume.pdf" target="_blank" rel="noopener">Open PDF</a>
+                <a class="btn" href="assets/resume.pdf" download>Download</a>
+                </div>
+            </object>
         </div>
     </main>
 </body>

@@ -1,148 +1,61 @@
 const canvas = document.getElementById("bg-canvas");
 
-// Determine which page we are on
-const bodyId = document.body.id;
-const isShowcase = bodyId === "page-showcase";
-const isProjects = bodyId === "page-projects";
-const isResume = bodyId === "page-resume";
-const isInteractivePage = isProjects || isResume;
-
-const PRESET_SHOWCASE = {
+// =======================================================
+// CONFIG — Showcase preset
+// =======================================================
+const CONFIG = {
+  // Particle count
   DENSITY_DIVISOR: 110,
-  MIN_PARTICLES: 35000,
+  MIN_PARTICLES: 15000,
   MAX_PARTICLES: 120000,
 
+  // "3D" depth volume
   DEPTH: 900,
 
+  // Flow integration
   FORCE: 150,
   DRAG: 0.986,
   MAX_SPEED: 520,
 
+  // Anti-clump "pressure" (noise-based)
   PRESSURE_STRENGTH: 0.20,
 
+  // Sprite sizing
   MIN_POINT_PX: 0.95,
   Z_ALPHA_VARIATION: 0.28,
   Z_SIZE_VARIATION: 0.25,
 
+  // Camera
   FOV_DEG: 52,
 
+  // Trails
   TRAILS: true,
   TRAIL_DECAY: 0.955,
   TRAIL_EXPOSURE: 0.98,
   TRAIL_RES_SCALE: 0.75,
 
+  // While scrolling: slightly faster decay + clear on fast scroll to avoid boundary smear
   SCROLL_DECAY_BOOST: 0.86,
   SCROLL_CLEAR_THRESHOLD: 120,
 
-  TYPE_GAIN: { circuit: 1.05, network: 1.10, stream: 1.00, default: 1.0, projMix: 1.06 },
+  // Field tuning per showcase section type
+  TYPE_GAIN: { circuit: 1.05, network: 1.10, stream: 1.00, default: 1.0 },
 
-  MOUSE_INTERACT: false,
-
+  // Flow field domain scaling
   FIELD_SCALE: 1.0,
+
+  // Base particle alpha (energy into trails)
   BASE_ALPHA: 0.20,
 
+  // Blending
   BLENDING: "additive",
 };
-
-// NEW: Projects preset (fewer particles + BIG trails)
-const PRESET_PROJECTS = {
-  // fewer particles => larger divisor + lower caps
-  DENSITY_DIVISOR: 320,
-  MIN_PARTICLES: 6000,
-  MAX_PARTICLES: 22000,
-
-  // slightly less depth so trails feel “fatter”
-  DEPTH: 700,
-
-  // slower motion so trails read as big ribbons
-  FORCE: 120,
-  DRAG: 0.989,
-  MAX_SPEED: 360,
-
-  PRESSURE_STRENGTH: 0.16,
-
-  // slightly larger points so trails have body
-  MIN_POINT_PX: 1.35,
-  Z_ALPHA_VARIATION: 0.22,
-  Z_SIZE_VARIATION: 0.22,
-
-  FOV_DEG: 52,
-
-  // BIG trails: slower fade + higher exposure + higher RT resolution
-  TRAILS: true,
-  TRAIL_DECAY: 0.975,       // higher = longer trails
-  TRAIL_EXPOSURE: 0.88,     // brighter trails (careful but nice)
-  TRAIL_RES_SCALE: 1.10,    // higher = thicker/cleaner trails (costs GPU)
-
-  // no scroll logic needed, but keep values harmless
-  SCROLL_DECAY_BOOST: 0.90,
-  SCROLL_CLEAR_THRESHOLD: 999999,
-
-  TYPE_GAIN: { circuit: 1.0, network: 1.0, stream: 1.0, default: 1.0, projMix: 1.02 },
-
-  MOUSE_INTERACT: false,
-
-  FIELD_SCALE: 0.92,
-
-  // points themselves subtle; trails do the work
-  BASE_ALPHA: 0.04,
-
-  // additive tends to look best with trails
-  BLENDING: "additive",
-};
-
-const PRESET_RESUME = {
-  DENSITY_DIVISOR: 220,
-  MIN_PARTICLES: 12000,
-  MAX_PARTICLES: 45000,
-
-  DEPTH: 520,
-
-  FORCE: 120,
-  DRAG: 0.985,
-  MAX_SPEED: 520,
-
-  PRESSURE_STRENGTH: 0.12,
-
-  MIN_POINT_PX: 1.05,
-  Z_ALPHA_VARIATION: 0.18,
-  Z_SIZE_VARIATION: 0.16,
-
-  FOV_DEG: 52,
-
-  TRAILS: false,
-  TRAIL_DECAY: 0.95,
-  TRAIL_EXPOSURE: 0.95,
-  TRAIL_RES_SCALE: 0.65,
-
-  SCROLL_DECAY_BOOST: 0.9,
-  SCROLL_CLEAR_THRESHOLD: 160,
-
-  TYPE_GAIN: { circuit: 1.0, network: 1.0, stream: 1.0, default: 1.0, projMix: 1.0 },
-
-  MOUSE_INTERACT: true,
-  mouseRadius: 170,
-  mouseStrength: 260,
-  returnStrength: 6.5,
-
-  FIELD_SCALE: 0.9,
-  BASE_ALPHA: 0.12,
-
-  BLENDING: "normal",
-};
-
-const PRESET =
-  bodyId === "page-showcase" ? PRESET_SHOWCASE :
-  bodyId === "page-projects" ? PRESET_PROJECTS :
-  PRESET_RESUME;
-
-const CONFIG = PRESET;
 
 const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 const lerp = (a, b, t) => a + (b - a) * t;
 
 // =======================================================
-// Sections (showcase) — cache parsed colors once
+// Showcase sections — cache parsed colors once
 // =======================================================
 let sectionMap = [];
 
@@ -177,26 +90,7 @@ function mapSections() {
 }
 
 // =======================================================
-// Projects “virtual section”
-// - You asked for: network + stream
-// - We implement a custom type "projMix" that blends network and stream fields.
-// =======================================================
-const PROJECTS_VIRTUAL_SECTION = {
-  top: -1e15,
-  bottom: 1e15,
-  height: 1,
-  type: "projMix",
-  // slightly softer cyan to match projects card hover aesthetic
-  color: { r: 0.52, g: 0.90, b: 1.0, a: 1.0 },
-};
-
-// =======================================================
-// Mouse (kept for resume if you still want it)
-// =======================================================
-const mouse = { x: null, y: null, radius: CONFIG.mouseRadius ?? 150 };
-
-// =======================================================
-// Fast hash + noise helpers
+// Hash + noise helpers (fast, deterministic)
 // =======================================================
 function hash11(x) {
   const s = Math.sin(x * 127.1) * 43758.5453123;
@@ -214,9 +108,15 @@ function noise2(x, y) {
   );
 }
 
-// Curl field from scalar potential: F = (dφ/dy, -dφ/dx)
-function curlField(x, y, t, scale) {
-  // domain warp
+// =======================================================
+// Flow field (NO allocations in hot path)
+// =======================================================
+const _F1 = { ax: 0, ay: 0, zz: 0 };
+const _F2 = { ax: 0, ay: 0, zz: 0 };
+const _F3 = { ax: 0, ay: 0, zz: 0 };
+const _FT = { ax: 0, ay: 0, zz: 0 };
+
+function curlField_out(out, x, y, t, scale) {
   const wx = noise2(x * 0.7 + t * 0.15, y * 0.7 - t * 0.12);
   const wy = noise2(x * 0.7 - t * 0.10, y * 0.7 + t * 0.14);
 
@@ -229,10 +129,12 @@ function curlField(x, y, t, scale) {
   const phi_dx = (noise2((X + e) + t * 0.32, Y - t * 0.27) - phi) / e;
   const phi_dy = (noise2(X + t * 0.32, (Y + e) - t * 0.27) - phi) / e;
 
-  return { ax: phi_dy, ay: -phi_dx, zz: phi };
+  out.ax = phi_dy;
+  out.ay = -phi_dx;
+  out.zz = phi;
 }
 
-function curlFieldFilaments(x, y, t, scale) {
+function curlFieldFilaments_out(out, x, y, t, scale) {
   const X = x * scale;
   const Y = y * scale;
   const e = 0.0035;
@@ -253,58 +155,26 @@ function curlFieldFilaments(x, y, t, scale) {
       phi) /
     e;
 
-  return { ax: phi_dy, ay: -phi_dx, zz: Math.sin(phi) };
+  out.ax = phi_dy;
+  out.ay = -phi_dx;
+  out.zz = Math.sin(phi);
 }
 
-function waveField(x, y, t) {
-  const ax = 1.0 + 0.55 * Math.sin((y * 6.0 - t * 1.0) * 2.0);
-  const ay =
+function waveField_out(out, x, y, t) {
+  out.ax = 1.0 + 0.55 * Math.sin((y * 6.0 - t * 1.0) * 2.0);
+  out.ay =
     0.40 * Math.sin((x * 7.0 + t * 0.8) * 2.0) +
     0.25 * Math.sin((y * 3.0 + t) * 2.0);
-  const zz = Math.sin((x * 4.0 + y * 3.0 + t * 1.3) * 1.2);
-  return { ax, ay, zz };
+  out.zz = Math.sin((x * 4.0 + y * 3.0 + t * 1.3) * 1.2);
 }
 
-function mixField(a, b, t) {
-  return { ax: lerp(a.ax, b.ax, t), ay: lerp(a.ay, b.ay, t), zz: lerp(a.zz, b.zz, t) };
+function mixField_out(out, a, b, t) {
+  out.ax = lerp(a.ax, b.ax, t);
+  out.ay = lerp(a.ay, b.ay, t);
+  out.zz = lerp(a.zz, b.zz, t);
 }
 
-// =======================================================
-// Style packs
-// - Showcase section types unchanged
-// - Projects uses "projMix" (network + stream blend)
-// =======================================================
-function sectionField(type, nx, ny, u, t, styleKey) {
-  // Custom projects blend: network + stream
-  if (type === "projMix") {
-    // Build a “network-like” electric nebula field
-    const fN1 = curlField(nx, ny, t * 1.08, 2.4 * CONFIG.FIELD_SCALE);
-    const fN2 = curlFieldFilaments(nx, ny, t * 0.98 + 3.7, 3.3 * CONFIG.FIELD_SCALE);
-    let FN = mixField(fN1, fN2, 0.55);
-    FN.ax *= 1.25;
-    FN.ay *= 1.25;
-
-    // Build a “stream-like” directional drift field (same as stream behavior)
-    const fS1 = curlField(nx, ny, t * 0.85, 1.2 * CONFIG.FIELD_SCALE);
-    const fS2 = waveField(nx, ny, t * 0.85);
-    let FS = mixField(fS1, fS2, 0.40);
-    FS.ax += 0.9;
-    FS.ay += 0.18 * Math.sin((nx * 2.6 + t * 0.9) * 2.0);
-
-    // Blend them per-particle for richness (no visible “mode switching”)
-    const mixT = 0.45 + 0.25 * Math.sin(styleKey * 6.2831853 + t * 0.25);
-    let F = mixField(FN, FS, mixT);
-
-    // Mild vertical modulation so top/bottom feel different (but still full coverage)
-    const um = 0.85 + 0.30 * Math.sin((u * 6.0 + t * 0.25) * 2.0);
-    const gain = CONFIG.TYPE_GAIN.projMix ?? 1.0;
-    F.ax *= gain * um;
-    F.ay *= gain * um;
-
-    return F;
-  }
-
-  // Showcase section types (unchanged behavior)
+function sectionField_out(out, type, nx, ny, u, t, styleKey) {
   const gain = CONFIG.TYPE_GAIN[type] ?? CONFIG.TYPE_GAIN.default;
 
   let sA = 1.4,
@@ -325,52 +195,54 @@ function sectionField(type, nx, ny, u, t, styleKey) {
     tt = t * 0.85;
   }
 
-  const f1 = curlField(nx, ny, tt, sA * CONFIG.FIELD_SCALE);
-  const f2 = curlFieldFilaments(nx, ny, tt * 0.9 + 3.7, sB * CONFIG.FIELD_SCALE);
-  const f3 = waveField(nx, ny, tt);
+  curlField_out(_F1, nx, ny, tt, sA * CONFIG.FIELD_SCALE);
+  curlFieldFilaments_out(_F2, nx, ny, tt * 0.9 + 3.7, sB * CONFIG.FIELD_SCALE);
+  waveField_out(_F3, nx, ny, tt);
 
-  let F;
   if (styleKey < 0.33) {
     const k = styleKey / 0.33;
-    F = mixField(f1, f2, k * 0.45);
+    mixField_out(_FT, _F1, _F2, k * 0.45);
   } else if (styleKey < 0.66) {
     const k = (styleKey - 0.33) / 0.33;
-    F = mixField(f2, f1, 0.35 + k * 0.45);
+    mixField_out(_FT, _F2, _F1, 0.35 + k * 0.45);
   } else {
     const k = (styleKey - 0.66) / 0.34;
-    F = mixField(f1, f3, 0.35 + k * 0.55);
+    mixField_out(_FT, _F1, _F3, 0.35 + k * 0.55);
   }
 
+  // copy to out (so later edits don't corrupt temp reuse)
+  out.ax = _FT.ax;
+  out.ay = _FT.ay;
+  out.zz = _FT.zz;
+
   if (type === "stream") {
-    F.ax += 0.9;
-    F.ay += 0.18 * Math.sin((nx * 2.6 + tt * 0.9) * 2.0);
+    out.ax += 0.9;
+    out.ay += 0.18 * Math.sin((nx * 2.6 + tt * 0.9) * 2.0);
   } else if (type === "circuit") {
     const twist = 0.55 + 0.35 * Math.sin(tt * 0.7 + (nx * 3.0 + ny * 2.0) * 2.0);
     const rx = -ny * twist;
     const ry = nx * twist;
-    F.ax = F.ax * 0.78 + rx * 0.22;
-    F.ay = F.ay * 0.78 + ry * 0.22;
+    out.ax = out.ax * 0.78 + rx * 0.22;
+    out.ay = out.ay * 0.78 + ry * 0.22;
   } else if (type === "network") {
-    F.ax *= 1.25;
-    F.ay *= 1.25;
+    out.ax *= 1.25;
+    out.ay *= 1.25;
   }
 
   const um = 0.85 + 0.30 * Math.sin((u * 6.0 + tt * 0.25) * 2.0);
-  F.ax *= gain * um;
-  F.ay *= gain * um;
-
-  return F;
+  out.ax *= gain * um;
+  out.ay *= gain * um;
 }
 
 // =======================================================
 // Particles
 // =======================================================
 let particlesArray = [];
+const DEFAULT_COLOR = { r: 1, g: 1, b: 1, a: 1 };
 
 class Particle {
   constructor(w, h, id) {
     this.id = id;
-
     this.x = Math.random() * w;
     this.y = Math.random() * h;
 
@@ -380,21 +252,20 @@ class Particle {
     this.z = (Math.random() * 2 - 1) * CONFIG.DEPTH;
 
     this.size = 0.55 + hash11(id * 1.37) * 0.75;
-
-    this.baseX = this.x;
-    this.baseY = this.y;
-    this.baseZ = this.z;
-
     this.density = 1 + hash11(id * 9.13) * 30;
 
+    // cached classification
     this._type = "default";
     this._section = null;
-    this._color = { r: 1, g: 1, b: 1, a: 1 };
-
+    this._color = DEFAULT_COLOR;
     this._absY = 0;
 
+    // per-particle style variance
     this.styleKey = hash11(id * 3.71);
     this.phase = hash11(id * 5.19) * Math.PI * 2;
+
+    // PRECOMPUTE stable color jitter once (was per-frame)
+    this.jitter = (hash21(id * 0.17, id * 0.31) - 0.5) * 0.10;
   }
 
   wrap(w, h) {
@@ -409,81 +280,27 @@ class Particle {
     else if (this.z < -d) this.z = d;
   }
 
-  update(dt, w, h, t) {
-    // RESUME mouse interaction only (projects + showcase do not use this)
-    if (CONFIG.MOUSE_INTERACT && isResume && mouse.x != null) {
-      const dx = this.x - mouse.x;
-      const dy = this.y - mouse.y;
-
-      const r = mouse.radius;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-
-      if (dist < r) {
-        const inv = 1 / (dist || 1);
-        const nx = dx * inv;
-        const ny = dy * inv;
-
-        const falloff = (r - dist) / r;
-        const accel = falloff * CONFIG.mouseStrength;
-
-        this.vx += nx * accel * dt;
-        this.vy += ny * accel * dt;
-        this.z += (nx + ny) * 18 * falloff * dt;
-      } else {
-        this.vx += (this.baseX - this.x) * CONFIG.returnStrength * dt;
-        this.vy += (this.baseY - this.y) * CONFIG.returnStrength * dt;
-        this.z += (this.baseZ - this.z) * 2.0 * dt;
-      }
-
-      this.vx *= CONFIG.DRAG;
-      this.vy *= CONFIG.DRAG;
-
-      const sp = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-      if (sp > CONFIG.MAX_SPEED) {
-        const s = CONFIG.MAX_SPEED / sp;
-        this.vx *= s;
-        this.vy *= s;
-      }
-
-      this.x += this.vx;
-      this.y += this.vy;
-
-      this.wrap(w, h);
-      return;
-    }
-
-    // Full-viewport fields (showcase sections OR projects virtual section)
-    const invW = 1 / Math.max(1, w);
-    const invH = 1 / Math.max(1, h);
-
+  update(dt, w, h, t, invW, invH) {
     const nx = this.x * invW * 2 - 1;
     const ny = this.y * invH * 2 - 1;
 
     let type = "default";
     let u = 0.5;
 
-    if ((isShowcase || isProjects) && this._section) {
-      type = this._section.type || "default";
-      // u is only meaningful for real sections; for projects it's a constant slab
-      if (isShowcase) {
-        u = clamp(
-          (this._absY - this._section.top) / Math.max(1, this._section.height),
-          0,
-          1
-        );
-      } else {
-        u = this.y * invH; // subtle top/bottom modulation on projects
-      }
+    const sec = this._section;
+    if (sec) {
+      type = sec.type || "default";
+      u = clamp((this._absY - sec.top) / Math.max(1, sec.height), 0, 1);
     }
 
-    const F = sectionField(type, nx, ny, u, t + this.phase * 0.08, this.styleKey);
+    // NO ALLOC: writes into _FT
+    sectionField_out(_FT, type, nx, ny, u, t + this.phase * 0.08, this.styleKey);
 
-    // anti-clump pressure (no neighbor loops)
     const px = noise2(nx * 2.2 + t * 0.2, ny * 2.2 - t * 0.18);
     const py = noise2(nx * 2.2 - t * 0.18, ny * 2.2 + t * 0.2);
 
-    const ax = F.ax + px * CONFIG.PRESSURE_STRENGTH;
-    const ay = F.ay + py * CONFIG.PRESSURE_STRENGTH;
+    const ax = _FT.ax + px * CONFIG.PRESSURE_STRENGTH;
+    const ay = _FT.ay + py * CONFIG.PRESSURE_STRENGTH;
 
     this.vx = (this.vx + ax * CONFIG.FORCE * dt) * CONFIG.DRAG;
     this.vy = (this.vy + ay * CONFIG.FORCE * dt) * CONFIG.DRAG;
@@ -498,7 +315,7 @@ class Particle {
     this.x += this.vx * dt;
     this.y += this.vy * dt;
 
-    const zTarget = F.zz * CONFIG.DEPTH;
+    const zTarget = _FT.zz * CONFIG.DEPTH;
     this.z += (zTarget - this.z) * (0.65 * dt);
 
     this.wrap(w, h);
@@ -506,7 +323,7 @@ class Particle {
 }
 
 // =======================================================
-// THREE.js (Points + optional trails)
+// THREE.js (Points + trails pipeline)
 // =======================================================
 let renderer, camera;
 let pointsScene, pointsGeom, pointsMat, points;
@@ -516,12 +333,12 @@ let trailScene, trailCam, trailMat, trailQuad;
 let rtPoints, rtA, rtB;
 let ping = 0;
 
+// buffers
 let positions, colors, sizes;
 
-// HOT PATH OPTIMIZATION: manual projection
+// HOT PATH: manual projection cache
 let M = new Float32Array(16);
-let halfW = 0,
-  halfH = 0;
+let halfH = 0;
 
 function updateCombinedMatrixCache() {
   const p = camera.projectionMatrix.elements;
@@ -539,14 +356,13 @@ function updateCombinedMatrixCache() {
     M[col * 4 + 3] = p[3] * vc0 + p[7] * vc1 + p[11] * vc2 + p[15] * vc3;
   }
 
-  halfW = window.innerWidth * 0.5;
   halfH = window.innerHeight * 0.5;
 }
 
-function projectScreenY_fast(x, yScreenDown, z) {
-  const wx = x;
-  const wy = -yScreenDown;
-  const wz = z;
+function projectScreenY_fast(worldX, screenDownY, worldZ) {
+  const wx = worldX;
+  const wy = -screenDownY;
+  const wz = worldZ;
 
   const clipY = M[1] * wx + M[5] * wy + M[9] * wz + M[13];
   const clipW = M[3] * wx + M[7] * wy + M[11] * wz + M[15];
@@ -555,51 +371,25 @@ function projectScreenY_fast(x, yScreenDown, z) {
   return (-ndcY * halfH) + halfH;
 }
 
-function classifyParticleByScreen(p) {
-  // Projects: single virtual section (no scroll boundaries)
-  if (isProjects) {
-    p._section = PROJECTS_VIRTUAL_SECTION;
-    p._type = PROJECTS_VIRTUAL_SECTION.type;
-    p._color = PROJECTS_VIRTUAL_SECTION.color;
-    // still compute absY for consistency (not required, but cheap)
-    const sy = projectScreenY_fast(p.x, p.y, p.z);
-    p._absY = sy + window.scrollY;
-    return;
-  }
-
-  // Showcase: true section classification
+function classifyParticleByScreen(p, scrollY) {
   const sy = projectScreenY_fast(p.x, p.y, p.z);
-  p._absY = sy + window.scrollY;
+  p._absY = sy + scrollY;
 
-  if (isShowcase) {
-    const absoluteY = p._absY;
-    for (let i = 0; i < sectionMap.length; i++) {
-      const sec = sectionMap[i];
-      if (absoluteY >= sec.top && absoluteY < sec.bottom) {
-        p._section = sec;
-        p._type = sec.type;
-        p._color = sec.color;
-        return;
-      }
+  const absoluteY = p._absY;
+
+  for (let i = 0; i < sectionMap.length; i++) {
+    const sec = sectionMap[i];
+    if (absoluteY >= sec.top && absoluteY < sec.bottom) {
+      p._section = sec;
+      p._type = sec.type;
+      p._color = sec.color;
+      return;
     }
-    p._section = null;
-    p._type = "default";
-    p._color = { r: 1, g: 1, b: 1, a: 1 };
-    return;
-  }
-
-  // Resume (or anything else)
-  if (isResume) {
-    // keep a calm bluish tint on resume if desired
-    p._section = null;
-    p._type = "default";
-    p._color = { r: 100 / 255, g: 200 / 255, b: 1, a: 0.55 };
-    return;
   }
 
   p._section = null;
   p._type = "default";
-  p._color = { r: 1, g: 1, b: 1, a: 1 };
+  p._color = DEFAULT_COLOR; // NO alloc
 }
 
 function setupThree() {
@@ -632,7 +422,8 @@ function buildPoints() {
   pointsGeom.setAttribute("color", new THREE.BufferAttribute(colors, 4));
   pointsGeom.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
 
-  const blendingMode = CONFIG.BLENDING === "normal" ? THREE.NormalBlending : THREE.AdditiveBlending;
+  const blendingMode =
+    CONFIG.BLENDING === "normal" ? THREE.NormalBlending : THREE.AdditiveBlending;
 
   pointsMat = new THREE.ShaderMaterial({
     transparent: true,
@@ -807,7 +598,7 @@ function resize() {
   renderer.setSize(window.innerWidth, window.innerHeight, false);
   syncCameraToPixels();
   if (CONFIG.TRAILS) allocateTrailRTs();
-  if (isShowcase) mapSections();
+  mapSections();
 }
 
 function init() {
@@ -817,27 +608,26 @@ function init() {
   particlesArray = [];
   let n = Math.floor((w * h) / CONFIG.DENSITY_DIVISOR);
   n = clamp(n, CONFIG.MIN_PARTICLES, CONFIG.MAX_PARTICLES);
-  console.log(`Initializing with ${n} particles`);
 
   for (let i = 0; i < n; i++) particlesArray.push(new Particle(w, h, i));
 
-  if (isShowcase) mapSections();
+  mapSections();
 
   if (points) pointsScene.remove(points);
   buildPoints();
 
   updateCombinedMatrixCache();
-  for (let i = 0; i < particlesArray.length; i++) classifyParticleByScreen(particlesArray[i]);
+  const scrollY = window.scrollY;
+  for (let i = 0; i < particlesArray.length; i++) classifyParticleByScreen(particlesArray[i], scrollY);
 
   clearTrails();
 }
 
 // =======================================================
-// Scroll update (rAF debounced) — showcase only
+// Scroll update (rAF debounced)
 // =======================================================
 let _scrollRafPending = false;
 function onScrollUpdate() {
-  if (!isShowcase) return;
   if (_scrollRafPending) return;
   _scrollRafPending = true;
   requestAnimationFrame(() => {
@@ -863,13 +653,17 @@ function animate(timeStamp) {
   const h = window.innerHeight;
   const t = timeStamp / 1000;
 
+  // cache frequently used values ONCE per frame
+  const scrollY = window.scrollY;
+  const invW = 1 / Math.max(1, w);
+  const invH = 1 / Math.max(1, h);
+
   updateCombinedMatrixCache();
 
-  // prevent cross-section trail bleed while scrolling (showcase only)
-  if (isShowcase && CONFIG.TRAILS) {
-    const sy = window.scrollY;
-    const d = sy - lastScrollY;
-    lastScrollY = sy;
+  // scrolling trail cleanup
+  if (CONFIG.TRAILS) {
+    const d = scrollY - lastScrollY;
+    lastScrollY = scrollY;
 
     const ad = Math.abs(d);
     if (ad > 0.5) {
@@ -885,41 +679,42 @@ function animate(timeStamp) {
   pointsMat.uniforms.uDepthAlpha.value = CONFIG.Z_ALPHA_VARIATION;
   pointsMat.uniforms.uMinPointPx.value = CONFIG.MIN_POINT_PX;
 
-  // update particles
-  for (let i = 0; i < particlesArray.length; i++) {
-    particlesArray[i].update(dt, w, h, t);
-  }
-
-  // write buffers
   const baseA = CONFIG.BASE_ALPHA;
   const depthAlphaVar = CONFIG.Z_ALPHA_VARIATION;
   const invDepth = 1 / CONFIG.DEPTH;
 
+  // SINGLE PASS: classify -> update -> write buffers
   for (let i = 0; i < particlesArray.length; i++) {
     const p = particlesArray[i];
 
-    classifyParticleByScreen(p);
+    classifyParticleByScreen(p, scrollY);
+    p.update(dt, w, h, t, invW, invH);
 
-    // world pos (y flipped to match camera)
-    positions[i * 3 + 0] = p.x;
-    positions[i * 3 + 1] = -p.y;
-    positions[i * 3 + 2] = p.z;
+    // world position (y flipped)
+    const i3 = i * 3;
+    positions[i3 + 0] = p.x;
+    positions[i3 + 1] = -p.y;
+    positions[i3 + 2] = p.z;
 
-    const jitter = (hash21(p.id * 0.17, p.id * 0.31) - 0.5) * 0.10;
-
-    const cr = clamp(p._color.r + jitter, 0, 1);
-    const cg = clamp(p._color.g + jitter, 0, 1);
-    const cb = clamp(p._color.b + jitter, 0, 1);
+    // stable jitter (precomputed)
+    const cr = clamp(p._color.r + p.jitter, 0, 1);
+    const cg = clamp(p._color.g + p.jitter, 0, 1);
+    const cb = clamp(p._color.b + p.jitter, 0, 1);
 
     const z01 = (p.z * invDepth) * 0.5 + 0.5;
     const depthFade = lerp(1.0 - depthAlphaVar, 1.0 + depthAlphaVar, z01);
 
-    colors[i * 4 + 0] = cr;
-    colors[i * 4 + 1] = cg;
-    colors[i * 4 + 2] = cb;
-    colors[i * 4 + 3] = clamp(baseA * depthFade, 0, 1);
+    const i4 = i * 4;
+    colors[i4 + 0] = cr;
+    colors[i4 + 1] = cg;
+    colors[i4 + 2] = cb;
+    colors[i4 + 3] = clamp(baseA * depthFade, 0, 1);
 
-    const depthSize = lerp(1.0 - CONFIG.Z_SIZE_VARIATION, 1.0 + CONFIG.Z_SIZE_VARIATION, z01);
+    const depthSize = lerp(
+      1.0 - CONFIG.Z_SIZE_VARIATION,
+      1.0 + CONFIG.Z_SIZE_VARIATION,
+      z01
+    );
     sizes[i] = p.size * depthSize;
   }
 
@@ -938,7 +733,7 @@ function animate(timeStamp) {
     const prev = ping === 0 ? rtA : rtB;
     const next = ping === 0 ? rtB : rtA;
 
-    const decay = isShowcase && scrollBoostTimer > 0 ? CONFIG.SCROLL_DECAY_BOOST : CONFIG.TRAIL_DECAY;
+    const decay = scrollBoostTimer > 0 ? CONFIG.SCROLL_DECAY_BOOST : CONFIG.TRAIL_DECAY;
 
     trailMat.uniforms.uPrev.value = prev.texture;
     trailMat.uniforms.uCurr.value = rtPoints.texture;
@@ -972,26 +767,14 @@ function animate(timeStamp) {
 }
 
 // =======================================================
-// Event Listeners
+// Event listeners
 // =======================================================
 window.addEventListener("resize", () => {
   resize();
   init();
 });
 
-window.addEventListener("mousemove", (e) => {
-  mouse.x = e.clientX;
-  mouse.y = e.clientY;
-});
-
-window.addEventListener("mouseout", () => {
-  mouse.x = null;
-  mouse.y = null;
-});
-
-if (isShowcase) {
-  window.addEventListener("scroll", onScrollUpdate, { passive: true });
-}
+window.addEventListener("scroll", onScrollUpdate, { passive: true });
 
 // =======================================================
 // Start
@@ -1008,11 +791,14 @@ requestAnimationFrame(animate);
 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+";
 
 function instantScramble(element) {
+  // 1. Setup
   const originalText = element.dataset.value;
   let iterations = 0;
 
+  // 2. Make visible immediately
   element.style.visibility = "visible";
 
+  // 3. Adaptive Speed:
   const length = originalText.length;
   const step = Math.max(1, Math.ceil(length / 15));
 
@@ -1021,7 +807,10 @@ function instantScramble(element) {
       .split("")
       .map((letter, index) => {
         if (letter === " " || letter === "\n") return letter;
-        if (index < iterations) return originalText[index];
+
+        if (index < iterations) {
+          return originalText[index];
+        }
         return chars[Math.floor(Math.random() * chars.length)];
       })
       .join("");
@@ -1035,6 +824,7 @@ function instantScramble(element) {
   }, 20);
 }
 
+// Observer Logic
 document.addEventListener("DOMContentLoaded", () => {
   const targets = document.querySelectorAll(
     "h1, h2, h3, p:not(.link-text), .tags span, .showcase-btn, .contact-btn, .bio-text"
