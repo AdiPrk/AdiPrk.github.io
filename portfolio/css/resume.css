@@ -1,6 +1,11 @@
 /* --- Resume Page Specifics --- */
+header{
+  position: sticky; /* overwrite for resume positioning */
+  top: 0;
+}
+
 .resume-wrapper {
-    padding-top: 55px;
+    padding-top: 0px;
     height: 100vh;
     display: flex;
     flex-direction: column;

@@ -16,25 +16,66 @@ body {
     z-index: -1;
 }
 
+/* --- HEADER (Updated: Crisp, No Glow, High Contrast) --- */
 header {
-    position: fixed; top: 0; width: 100%;
+    position: fixed; 
+    top: 0; 
+    width: 100%;
     padding: 20px 40px;
-    display: flex; justify-content: space-between; align-items: center;
-    background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
-    z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    
+    background: rgba(5, 5, 5, 0.9); /* Slightly more opaque for legibility */
+    backdrop-filter: blur(10px);
+    z-index: 100; 
+    border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
+/* NEW: Clean Logo (No Glow) */
+.logo {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 1.5rem;
+    font-weight: 700; 
+    color: white;
+    letter-spacing: -0.5px;
+    cursor: default;
+}
+
+/* Updated Nav Links (Crisp) */
 header nav a {
-    color: #888; text-decoration: none; margin-left: 20px;
-    font-weight: bold; transition: 0.3s;
+    font-family: 'Consolas', 'Monaco', monospace;
+    color: #999; /* Medium Gray - readable without hover */
+    text-decoration: none; 
+    margin-left: 30px; 
+    font-size: 1rem;
+    font-weight: 600; 
+    transition: color 0.2s ease;
+    position: relative;
+    padding: 5px 0;
 }
 
-header nav a:hover, header nav a.active { color: white; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+/* Hover: Just turns white, no blurry glow */
+header nav a:hover, header nav a.active { 
+    color: white; 
+}
 
-/* Reveal text */
+/* Clean Underline for Active Link */
+header nav a.active::after {
+    content: '';
+    position: absolute;
+    bottom: -5px; 
+    left: 0;
+    width: 100%;
+    height: 1px; /* Sharp thin line */
+    background: cyan;
+}
+
+/* --- Animation State --- */
 .hacker-text {
     visibility: hidden; 
 }
+
 
 /* --- Global Floating HUD (Footer) --- */
 footer {
@@ -49,10 +90,14 @@ footer {
     align-items: center;
     justify-content: center;
     
-    background: rgba(60, 60, 60, 0.5); 
-    backdrop-filter: blur(20px); /* Stronger Blur */
+    /* EARTHY BROWN BASE */
+    background: rgba(100, 93, 65, 0.7); 
+    backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
+    
     border: 1px solid rgba(255, 255, 255, 0.55);
+    
+    /* Glass Lip & Shadow */
     box-shadow: 
         0 15px 35px rgba(0,0,0,0.8),
         0 0 15px rgba(255, 255, 255, 0.07), 
@@ -64,9 +109,9 @@ footer {
 }
 
 footer:hover {
-    background: rgba(60, 60, 60, 0.7);
+    background: rgba(100, 93, 65, 0.7); 
     border-color: rgba(255, 255, 255, 0.5);
-    /* Stronger glow on hover */
+    /* Stronger lift on hover */
     box-shadow: 
         0 20px 50px rgba(0,0,0,0.9),
         0 0 20px rgba(255, 255, 255, 0.15),
@@ -82,8 +127,7 @@ footer:hover {
 
 /* --- The Icons / Links --- */
 .footer-link {
-    /* POP TWEAK 4: Brighter default icon color (was #aaa) */
-    color: #ddd; 
+    color: #ddd; /* Bright gray default */
     text-decoration: none;
     font-size: 1.3rem;
     display: flex;
@@ -111,12 +155,11 @@ footer:hover {
     transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/* --- Hover Interaction (The Expansion) --- */
+/* --- Hover Interaction (Expansion) --- */
 .footer-link:hover {
     background: rgba(255, 255, 255, 0.1);
     color: white;
     padding-right: 20px; 
-    /* Add a tiny border on hover to define the button area */
     border-color: rgba(255, 255, 255, 0.1); 
 }
 
@@ -126,33 +169,81 @@ footer:hover {
     margin-left: 12px; 
 }
 
-/* --- Brand Specific Colors on Hover (Unchanged) --- */
+/* --- Brand Colors (Updated: Sharp, No Glow) --- */
+
+/* Email (Bright Cyan) */
 .footer-link.email:hover { 
-    background: rgba(0, 255, 255, 0.15); 
-    border-color: rgba(0, 255, 255, 0.3);
+    background: rgba(0, 255, 255, 0.1); 
+    border-color: rgba(0, 255, 255, 0.4);
 }
 .footer-link.email:hover i, 
 .footer-link.email:hover .link-text { 
-    color: cyan; 
-    text-shadow: 0 0 15px rgba(0, 255, 255, 0.6); 
+    color: #00ffff; 
+    text-shadow: none; /* Clean */
 }
 
+/* GitHub (White/Black High Contrast) */
 .footer-link.github:hover { 
-    background: rgba(189, 44, 0, 0.15); 
-    border-color: rgba(189, 44, 0, 0.3);
+    background: rgba(0, 0, 0, 0.6); 
+    border-color: rgba(255, 255, 255, 0.6);
 }
 .footer-link.github:hover i, 
 .footer-link.github:hover .link-text { 
-    color: #ff5533; 
-    text-shadow: 0 0 15px rgba(189, 44, 0, 0.6); 
+    color: white; 
+    text-shadow: none; /* Clean */
 }
 
+/* LinkedIn (Sky Blue) */
 .footer-link.linkedin:hover { 
-    background: rgba(0, 119, 181, 0.15); 
-    border-color: rgba(0, 119, 181, 0.3);
+    background: rgba(0, 119, 181, 0.2); 
+    border-color: rgba(100, 200, 255, 0.5);
 }
 .footer-link.linkedin:hover i, 
 .footer-link.linkedin:hover .link-text { 
-    color: #4db5ff; 
-    text-shadow: 0 0 15px rgba(0, 119, 181, 0.6); 
+    color: #6ec6ff; 
+    text-shadow: none; /* Clean */
+}
+
+/* --- Debug HUD (bottom-left) --- */
+#debug-hud {
+    position: fixed;
+    left: 14px;
+    bottom: 14px;
+    z-index: 9999;
+    display: none;
+
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+    line-height: 1.35;
+    letter-spacing: 0.2px;
+
+    color: rgba(255,255,255,0.92);
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 10px 12px;
+
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+
+    pointer-events: none; /* never blocks clicks */
+    user-select: none;
+}
+
+#debug-hud .row {
+    display: grid;
+    grid-template-columns: 70px auto;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+#debug-hud .k {
+    color: rgba(255,255,255,0.65);
+}
+
+#debug-hud .v {
+    color: rgba(0,255,255,0.95);
+    text-align: right;
 }
