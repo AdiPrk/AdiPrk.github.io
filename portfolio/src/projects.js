@@ -17,8 +17,8 @@
   // -------------------------------
   const CONFIG = {
     DENSITY_DIVISOR: 3400,
-    MIN_PARTICLES: 9000,
-    MAX_PARTICLES: 90000,
+    MIN_PARTICLES: 6000,
+    MAX_PARTICLES: 20000,
 
     DEPTH: 800,
 

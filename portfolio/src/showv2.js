@@ -15,8 +15,8 @@ const FIXED_RENDER_DPR = Math.min(BASE_DPR, 1.25);
 const CONFIG = {
   // Particle count
   DENSITY_DIVISOR: 100,
-  MIN_PARTICLES: 10000,
-  MAX_PARTICLES: 100000,
+  MIN_PARTICLES: 5000,
+  MAX_PARTICLES: 25000,
 
   // Depth volume
   DEPTH: 900,
@@ -30,8 +30,8 @@ const CONFIG = {
   PRESSURE_STRENGTH: 0.18,
 
   // Sprite sizing (CSS px)
-  MIN_POINT_PX: 1.55,
-  MAX_POINT_PX: 2.35,
+  MIN_POINT_PX: 0.55,
+  MAX_POINT_PX: 1.35,
   Z_ALPHA_VARIATION: 0.28,
   Z_SIZE_VARIATION: 0.25,
 
@@ -41,7 +41,7 @@ const CONFIG = {
   // Blending
   BLENDING: "additive", // "additive" or "normal"
 
-  // Trails (fixed)
+  // Trails
   TRAILS: true,
   TRAIL_DECAY: 0.995,
   TRAIL_EXPOSURE: 0.97,
@@ -49,19 +49,33 @@ const CONFIG = {
 
   // Section-mask gating (OPTION 4)
   TRAIL_SECTION_MIX: 0.10,
-  TRAIL_SECTION_EPS: (1.0 / 255.0) * 2.0,
+  TRAIL_SECTION_EPS: 1.0 / 255.0 * 2.0,
+
+  // Auto quality
+  AUTO_QUALITY: true,
+  AUTO_QUALITY_TARGET_FPS: 58,
+  AUTO_QUALITY_MIN_FPS: 30,
+  AUTO_QUALITY_COOLDOWN_SEC: 0.75,
+
+  // If FPS stays awful even after dropping trail scale, optionally throttle active particles
+  AUTO_THROTTLE_PARTICLES: true,
+  ACTIVE_MIN_RATIO: 0.55,
+  ACTIVE_STEP_RATIO: 0.08,
 
   // Sections
   MAX_SECTIONS: 3,
 
-  // INTERNAL RESOLUTION CAP (fixed; NOT adaptive)
+  // ============================
+  // INTERNAL RESOLUTION CAP (NEW)
+  // ============================
+  // Heavy passes behave like they’re running at ~1080p even on 4K displays.
   // These are DEVICE pixels AFTER applying FIXED_RENDER_DPR.
-  INTERNAL_MAX_W: 1920,
-  INTERNAL_MAX_H: 1080,
+  INTERNAL_MAX_W: 1280,
+  INTERNAL_MAX_H: 720,
 };
 
 const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
-const lerp = (a, b, t) => a + (b - a) * t;
+const lerp  = (a, b, t) => a + (b - a) * t;
 
 // =======================================================
 // Debug HUD (optional)
@@ -71,10 +85,11 @@ const DBG = {
   fpsEl: null,
   msEl: null,
   particlesEl: null,
+  activeEl: null,
   dprEl: null,
   trailEl: null,
-  capEl: null,
-  rtEl: null,
+  capEl: null,        // NEW
+  rtEl: null,         // NEW
 
   acc: 0,
   frames: 0,
@@ -88,12 +103,15 @@ function setupDebugHUD() {
   if (!DBG.root) return;
 
   DBG.fpsEl = document.getElementById("dbg-fps");
-  DBG.msEl = document.getElementById("dbg-ms");
+  DBG.msEl  = document.getElementById("dbg-ms");
   DBG.particlesEl = document.getElementById("dbg-particles");
-  DBG.dprEl = document.getElementById("dbg-dpr");
-  DBG.trailEl = document.getElementById("dbg-trail");
+  DBG.activeEl    = document.getElementById("dbg-active");
+  DBG.dprEl       = document.getElementById("dbg-dpr");
+  DBG.trailEl     = document.getElementById("dbg-trail");
+
+  // Optional new fields if you add them to HUD:
   DBG.capEl = document.getElementById("dbg-cap");
-  DBG.rtEl = document.getElementById("dbg-rt");
+  DBG.rtEl  = document.getElementById("dbg-rt");
 
   if (DBG.dprEl) DBG.dprEl.textContent = `${FIXED_RENDER_DPR.toFixed(2)} (fixed)`;
 }
@@ -112,11 +130,13 @@ function updateDebugHUD(dt) {
     DBG.fpsSmooth = DBG.fpsSmooth ? (DBG.fpsSmooth * 0.85 + fps * 0.15) : fps;
 
     if (DBG.fpsEl) DBG.fpsEl.textContent = `${DBG.fpsSmooth.toFixed(1)}`;
-    if (DBG.msEl) DBG.msEl.textContent = `${DBG.msSmooth.toFixed(1)} ms`;
+    if (DBG.msEl)  DBG.msEl.textContent  = `${DBG.msSmooth.toFixed(1)} ms`;
     if (DBG.particlesEl) DBG.particlesEl.textContent = `${particleCount.toLocaleString()}`;
-    if (DBG.trailEl) DBG.trailEl.textContent = CONFIG.TRAILS ? `${CONFIG.TRAIL_RES_SCALE.toFixed(2)}` : `off`;
+    if (DBG.activeEl)    DBG.activeEl.textContent    = `${activeCount.toLocaleString()}`;
+    if (DBG.trailEl)     DBG.trailEl.textContent     = CONFIG.TRAILS ? `${trailScale.toFixed(2)}` : `off`;
+
     if (DBG.capEl) DBG.capEl.textContent = `${capScale.toFixed(3)}`;
-    if (DBG.rtEl) DBG.rtEl.textContent = rtPointsMRT ? `${rtPointsMRT.width}x${rtPointsMRT.height}` : `—`;
+    if (DBG.rtEl)  DBG.rtEl.textContent  = (rtPointsMRT ? `${rtPointsMRT.width}x${rtPointsMRT.height}` : `—`);
 
     DBG.frames = 0;
     DBG.acc = 0;
@@ -133,7 +153,7 @@ setDebugHUDVisible(false);
 window.addEventListener("keydown", (e) => {
   if (e.key.toLowerCase() === "`") {
     const el = document.getElementById("debug-hud");
-    if (el) el.style.display = el.style.display === "none" ? "block" : "none";
+    if (el) el.style.display = (el.style.display === "none") ? "block" : "none";
   }
 });
 
@@ -142,17 +162,19 @@ window.addEventListener("keydown", (e) => {
 // =======================================================
 let secCount = 0;
 let secTopBottom = new Float32Array(CONFIG.MAX_SECTIONS * 2);
-let secColor = new Float32Array(CONFIG.MAX_SECTIONS * 4);
-let secType = new Float32Array(CONFIG.MAX_SECTIONS);
+let secColor     = new Float32Array(CONFIG.MAX_SECTIONS * 4);
+let secType      = new Float32Array(CONFIG.MAX_SECTIONS);
 let sectionMap = [];
 
 const TYPE_DEFAULT = 0;
 const TYPE_CIRCUIT = 1;
 const TYPE_NETWORK = 2;
-const TYPE_STREAM = 3;
+const TYPE_STREAM  = 3;
 
 function parseRGBAtoFloats(rgbaStr) {
-  const m = rgbaStr.match(/rgba\(\s*([0-9.]+)\s*,\s*([0-9.]+)\s*,\s*([0-9.]+)\s*,\s*([0-9.]+)\s*\)/i);
+  const m = rgbaStr.match(
+    /rgba\(\s*([0-9.]+)\s*,\s*([0-9.]+)\s*,\s*([0-9.]+)\s*,\s*([0-9.]+)\s*\)/i
+  );
   if (!m) return { r: 1, g: 1, b: 1, a: 1 };
   return {
     r: clamp(parseFloat(m[1]) / 255, 0, 1),
@@ -165,7 +187,7 @@ function parseRGBAtoFloats(rgbaStr) {
 function typeToCode(type) {
   if (type === "circuit") return TYPE_CIRCUIT;
   if (type === "network") return TYPE_NETWORK;
-  if (type === "stream") return TYPE_STREAM;
+  if (type === "stream")  return TYPE_STREAM;
   return TYPE_DEFAULT;
 }
 
@@ -225,6 +247,7 @@ let renderScene, renderCam, points;
 let trailScene, trailCam, trailQuad;
 
 let particleCount = 0;
+let activeCount = 0;
 
 let texSize = 0;
 let simPing = 0;
@@ -246,16 +269,23 @@ let trailPing = 0;
 let trailAccMat = null;
 let trailPresentMat = null;
 
-// Internal cap + RT scale total (cap * fixed trail scale)
-let capScale = 1.0;
-let rtScaleTotal = 1.0;
+let trailScale = CONFIG.TRAIL_RES_SCALE;
+
+// Auto quality state
+let aqCooldown = 0;
+let aqLowFpsHold = 0;
+let aqHighFpsHold = 0;
+
+// NEW: internal cap scale & effective RT scale used for points/trails
+let capScale = 1.0;          // based on INTERNAL_MAX_W/H
+let rtScaleTotal = 1.0;      // capScale * trailScale (when trails enabled)
 
 // =======================================================
 // Capabilities
 // =======================================================
 function assertWebGL2AndFloatRT() {
   const gl = renderer.getContext();
-  const isWebGL2 = typeof WebGL2RenderingContext !== "undefined" && gl instanceof WebGL2RenderingContext;
+  const isWebGL2 = (typeof WebGL2RenderingContext !== "undefined") && (gl instanceof WebGL2RenderingContext);
   if (!isWebGL2) throw new Error("SHOWCASE: WebGL2 required.");
 
   const extColorFloat = gl.getExtension("EXT_color_buffer_float");
@@ -267,19 +297,22 @@ function disposeRT(rt) {
 }
 
 // =======================================================
-// INTERNAL RESOLUTION CAP HELPERS
+// INTERNAL RESOLUTION CAP HELPERS (NEW)
 // =======================================================
-function getBasePixelSize() {
-  const baseW = Math.max(1, Math.floor(window.innerWidth * FIXED_RENDER_DPR));
-  const baseH = Math.max(1, Math.floor(window.innerHeight * FIXED_RENDER_DPR));
-  return { baseW, baseH };
-}
-
 function computeCapScale() {
-  const { baseW, baseH } = getBasePixelSize();
+  // baseW/H are the “device pixel” size you’d normally render at with fixed DPR
+  const baseW = Math.max(1, Math.floor(window.innerWidth  * FIXED_RENDER_DPR));
+  const baseH = Math.max(1, Math.floor(window.innerHeight * FIXED_RENDER_DPR));
+
   const sW = CONFIG.INTERNAL_MAX_W / baseW;
   const sH = CONFIG.INTERNAL_MAX_H / baseH;
   return clamp(Math.min(1.0, sW, sH), 0.05, 1.0);
+}
+
+function getBasePixelSize() {
+  const baseW = Math.max(1, Math.floor(window.innerWidth  * FIXED_RENDER_DPR));
+  const baseH = Math.max(1, Math.floor(window.innerHeight * FIXED_RENDER_DPR));
+  return { baseW, baseH };
 }
 
 // =======================================================
@@ -318,6 +351,9 @@ float n2(vec2 p) {
   float d = fract(sin(dot(i + vec2(1.0, 1.0), vec2(127.1, 311.7))) * 43758.5453123);
   return mix(mix(a,b,f.x), mix(c,d,f.x), f.y) * 2.0 - 1.0;
 }
+
+vec4 samplePos(vec2 uv) { return texture(uPosTex, uv); }
+vec4 sampleVel(vec2 uv) { return texture(uVelTex, uv); }
 
 float sectionTypeForAbsY(float absY) {
   for (int i = 0; i < ${CONFIG.MAX_SECTIONS}; i++) {
@@ -590,9 +626,11 @@ void main() {
   float styleKey = P.w;
 
   float sizeCss = V.w;
+
   float absY = y + uScrollY;
 
   vec4 sc = sectionColorForAbsY(absY);
+
   float si = sectionIndexForAbsY(absY);
   vSecId = si / float(${CONFIG.MAX_SECTIONS + 1});
 
@@ -605,7 +643,7 @@ void main() {
   float depthSize = mix(1.0 - uZSizeVar, 1.0 + uZSizeVar, z01);
 
   // Constant CSS px -> framebuffer px via fixed DPR.
-  // uPointScale scales point size when rendering into downscaled RTs (for trails).
+  // uPointScale is the RT scale factor (capScale * trailScale) when rendering into downscaled targets.
   float px = max(sizeCss * depthSize, uMinPointPx) * uFixedDPR * uPointScale;
   gl_PointSize = px;
 
@@ -667,7 +705,7 @@ void main() {
 }
 `;
 
-const FSQ_VS = `
+const TRAIL_ACC_VS = `
 precision highp float;
 in vec3 position;
 out vec2 vUv;
@@ -720,6 +758,16 @@ void main() {
 
   outColor = vec4(col, 1.0);
   outMask  = vec4(nextId, nextEnergy, 0.0, 1.0);
+}
+`;
+
+const TRAIL_PRESENT_VS = `
+precision highp float;
+in vec3 position;
+out vec2 vUv;
+void main() {
+  vUv = position.xy * 0.5 + 0.5;
+  gl_Position = vec4(position.xy, 0.0, 1.0);
 }
 `;
 
@@ -803,19 +851,19 @@ function setupThree() {
   simQuad = new THREE.Mesh(fsGeo, simMat);
   simScene.add(simQuad);
 
-  // Trails (optional)
+  // Trails scene (re-uses fullscreen plane)
   trailScene = new THREE.Scene();
   trailCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
   trailAccMat = new THREE.RawShaderMaterial({
     glslVersion: THREE.GLSL3,
-    vertexShader: FSQ_VS,
+    vertexShader: TRAIL_ACC_VS,
     fragmentShader: TRAIL_ACC_FS,
     uniforms: {
       uPrevColor: { value: null },
-      uPrevMask: { value: null },
+      uPrevMask:  { value: null },
       uCurrColor: { value: null },
-      uCurrMask: { value: null },
+      uCurrMask:  { value: null },
 
       uDecay: { value: CONFIG.TRAIL_DECAY },
       uExposure: { value: CONFIG.TRAIL_EXPOSURE },
@@ -829,7 +877,7 @@ function setupThree() {
 
   trailPresentMat = new THREE.RawShaderMaterial({
     glslVersion: THREE.GLSL3,
-    vertexShader: FSQ_VS,
+    vertexShader: TRAIL_PRESENT_VS,
     fragmentShader: TRAIL_PRESENT_FS,
     uniforms: { uTex: { value: null } },
     depthTest: false,
@@ -841,7 +889,8 @@ function setupThree() {
 }
 
 function buildPointsMaterials() {
-  const blendingMode = CONFIG.BLENDING === "normal" ? THREE.NormalBlending : THREE.AdditiveBlending;
+  const blendingMode =
+    CONFIG.BLENDING === "normal" ? THREE.NormalBlending : THREE.AdditiveBlending;
 
   const baseUniforms = {
     uPosTex: { value: null },
@@ -865,7 +914,6 @@ function buildPointsMaterials() {
     uSecColor: { value: new Array(CONFIG.MAX_SECTIONS).fill(new THREE.Vector4(1, 1, 1, 1)) },
   };
 
-  // THREE.UniformsUtils.clone keeps it clean + avoids manual deep clone logic.
   pointsMatScreen = new THREE.RawShaderMaterial({
     glslVersion: THREE.GLSL3,
     vertexShader: POINTS_VS,
@@ -874,7 +922,7 @@ function buildPointsMaterials() {
     depthTest: false,
     depthWrite: false,
     blending: blendingMode,
-    uniforms: THREE.UniformsUtils.clone(baseUniforms),
+    uniforms: structuredCloneUniforms(baseUniforms),
   });
 
   pointsMatMRT = new THREE.RawShaderMaterial({
@@ -885,8 +933,20 @@ function buildPointsMaterials() {
     depthTest: false,
     depthWrite: false,
     blending: THREE.NoBlending,
-    uniforms: THREE.UniformsUtils.clone(baseUniforms),
+    uniforms: structuredCloneUniforms(baseUniforms),
   });
+}
+
+function structuredCloneUniforms(u) {
+  const out = {};
+  for (const k in u) {
+    const v = u[k].value;
+    if (v && v.isVector2) out[k] = { value: v.clone() };
+    else if (v && v.isVector4) out[k] = { value: v.clone() };
+    else if (Array.isArray(v)) out[k] = { value: v.slice() };
+    else out[k] = { value: v };
+  }
+  return out;
 }
 
 // =======================================================
@@ -898,7 +958,6 @@ function buildPointsGeometry(count) {
   const idx = new Float32Array(count);
   for (let i = 0; i < count; i++) idx[i] = i;
 
-  // Position attribute is unused (we fetch from textures), but three.js expects it.
   const dummyPos = new Float32Array(count * 3);
   geo.setAttribute("position", new THREE.BufferAttribute(dummyPos, 3));
   geo.setAttribute("aIndex", new THREE.BufferAttribute(idx, 1));
@@ -967,20 +1026,20 @@ function pushSectionUniforms() {
 
   const v2 = new Array(CONFIG.MAX_SECTIONS);
   const v4 = new Array(CONFIG.MAX_SECTIONS);
-  const t = new Array(CONFIG.MAX_SECTIONS);
+  const t  = new Array(CONFIG.MAX_SECTIONS);
 
   for (let i = 0; i < CONFIG.MAX_SECTIONS; i++) {
-    const top = i < secCount ? secTopBottom[i * 2 + 0] : 1e9;
-    const bot = i < secCount ? secTopBottom[i * 2 + 1] : 1e9;
+    const top = (i < secCount) ? secTopBottom[i * 2 + 0] : 1e9;
+    const bot = (i < secCount) ? secTopBottom[i * 2 + 1] : 1e9;
 
-    const r = i < secCount ? secColor[i * 4 + 0] : 1;
-    const g = i < secCount ? secColor[i * 4 + 1] : 1;
-    const b = i < secCount ? secColor[i * 4 + 2] : 1;
-    const a = i < secCount ? secColor[i * 4 + 3] : 1;
+    const r = (i < secCount) ? secColor[i * 4 + 0] : 1;
+    const g = (i < secCount) ? secColor[i * 4 + 1] : 1;
+    const b = (i < secCount) ? secColor[i * 4 + 2] : 1;
+    const a = (i < secCount) ? secColor[i * 4 + 3] : 1;
 
     v2[i] = new THREE.Vector2(top, bot);
     v4[i] = new THREE.Vector4(r, g, b, a);
-    t[i] = i < secCount ? secType[i] : 0;
+    t[i]  = (i < secCount) ? secType[i] : 0;
   }
 
   simMat.uniforms.uSecCount.value = secCount;
@@ -996,31 +1055,32 @@ function pushSectionUniforms() {
 }
 
 // =======================================================
-// Trails + points RT allocation (fixed scale + cap)
+// Trails + points RT allocation (NOW CAPPED)
 // =======================================================
 function allocateTrailsAndPointsRTs() {
   disposeRT(rtPointsMRT);
   disposeRT(rtTrailA);
   disposeRT(rtTrailB);
-  rtPointsMRT = null;
-  rtTrailA = null;
-  rtTrailB = null;
 
   if (!CONFIG.TRAILS) {
+    rtPointsMRT = null;
+    rtTrailA = rtTrailB = null;
     rtScaleTotal = 1.0;
     return;
   }
 
   capScale = computeCapScale();
-  rtScaleTotal = capScale * CONFIG.TRAIL_RES_SCALE;
+  rtScaleTotal = capScale * trailScale;
 
   const { baseW, baseH } = getBasePixelSize();
+
+  // Downscaled RT dimensions (capped)
   const w = Math.max(2, Math.floor(baseW * rtScaleTotal));
   const h = Math.max(2, Math.floor(baseH * rtScaleTotal));
 
   rtPointsMRT = makeMRT_ByteLinear(w, h, 2);
-  rtTrailA = makeMRT_ByteLinear(w, h, 2);
-  rtTrailB = makeMRT_ByteLinear(w, h, 2);
+  rtTrailA    = makeMRT_ByteLinear(w, h, 2);
+  rtTrailB    = makeMRT_ByteLinear(w, h, 2);
 
   clearTrails();
 }
@@ -1041,9 +1101,9 @@ function clearTrails() {
 // Resize / Init
 // =======================================================
 function computeParticleCount() {
-  // Keep particle count stable vs 4K by using capped effective resolution.
+  // Use capped effective resolution so 4K doesn't spawn more particles than ~1080p.
   const cap = computeCapScale();
-  const effW = Math.max(1, Math.floor(window.innerWidth * cap));
+  const effW = Math.max(1, Math.floor(window.innerWidth  * cap));
   const effH = Math.max(1, Math.floor(window.innerHeight * cap));
 
   let n = Math.floor((effW * effH) / CONFIG.DENSITY_DIVISOR);
@@ -1051,7 +1111,7 @@ function computeParticleCount() {
   return n;
 }
 
-function resizeRendererAndUniforms() {
+function resize() {
   renderer.setPixelRatio(FIXED_RENDER_DPR);
   renderer.setSize(window.innerWidth, window.innerHeight, false);
 
@@ -1063,11 +1123,11 @@ function resizeRendererAndUniforms() {
   const w = window.innerWidth;
   const h = window.innerHeight;
 
-  if (simMat) simMat.uniforms.uRes.value.set(w, h);
+  if (simMat)  simMat.uniforms.uRes.value.set(w, h);
   if (initMat) initMat.uniforms.uRes.value.set(w, h);
 
   if (pointsMatScreen) pointsMatScreen.uniforms.uRes.value.set(w, h);
-  if (pointsMatMRT) pointsMatMRT.uniforms.uRes.value.set(w, h);
+  if (pointsMatMRT)    pointsMatMRT.uniforms.uRes.value.set(w, h);
 
   allocateTrailsAndPointsRTs();
 
@@ -1076,6 +1136,8 @@ function resizeRendererAndUniforms() {
 
 function init() {
   particleCount = computeParticleCount();
+  activeCount = particleCount;
+
   texSize = Math.ceil(Math.sqrt(particleCount));
 
   disposeSimTargets();
@@ -1106,35 +1168,122 @@ function init() {
   }
 
   pushSectionUniforms();
-  resizeRendererAndUniforms();
+
+  trailScale = CONFIG.TRAIL_RES_SCALE;
+  aqCooldown = 0;
+  aqLowFpsHold = 0;
+  aqHighFpsHold = 0;
+
+  resize();
   clearTrails();
+}
+
+// =======================================================
+// Auto quality
+// =======================================================
+function autoQualityStep(dt, fps) {
+  if (!CONFIG.AUTO_QUALITY) return;
+
+  if (aqCooldown > 0) {
+    aqCooldown -= dt;
+    return;
+  }
+
+  const target = CONFIG.AUTO_QUALITY_TARGET_FPS;
+  const minOk  = CONFIG.AUTO_QUALITY_MIN_FPS;
+
+  if (fps < minOk) {
+    aqLowFpsHold += dt;
+    aqHighFpsHold = 0;
+  } else if (fps > target) {
+    aqHighFpsHold += dt;
+    aqLowFpsHold = 0;
+  } else {
+    aqLowFpsHold  = Math.max(0, aqLowFpsHold  - dt);
+    aqHighFpsHold = Math.max(0, aqHighFpsHold - dt);
+  }
+
+  if (aqLowFpsHold > 0.5) {
+    aqLowFpsHold = 0;
+
+    if (CONFIG.TRAILS) {
+      const next = Math.max(0.35, trailScale - 0.10);
+      if (next !== trailScale) {
+        trailScale = next;
+        allocateTrailsAndPointsRTs();
+        aqCooldown = CONFIG.AUTO_QUALITY_COOLDOWN_SEC;
+        return;
+      } else {
+        CONFIG.TRAILS = false;
+        allocateTrailsAndPointsRTs();
+        aqCooldown = CONFIG.AUTO_QUALITY_COOLDOWN_SEC;
+        return;
+      }
+    }
+
+    if (CONFIG.AUTO_THROTTLE_PARTICLES) {
+      const minActive = Math.floor(particleCount * CONFIG.ACTIVE_MIN_RATIO);
+      const step = Math.max(1, Math.floor(particleCount * CONFIG.ACTIVE_STEP_RATIO));
+      activeCount = Math.max(minActive, activeCount - step);
+      aqCooldown = CONFIG.AUTO_QUALITY_COOLDOWN_SEC;
+      return;
+    }
+  }
+
+  if (aqHighFpsHold > 1.5) {
+    aqHighFpsHold = 0;
+
+    if (activeCount < particleCount) {
+      const step = Math.max(1, Math.floor(particleCount * CONFIG.ACTIVE_STEP_RATIO));
+      activeCount = Math.min(particleCount, activeCount + step);
+      aqCooldown = CONFIG.AUTO_QUALITY_COOLDOWN_SEC;
+      return;
+    }
+
+    if (!CONFIG.TRAILS) {
+      CONFIG.TRAILS = true;
+      trailScale = Math.min(CONFIG.TRAIL_RES_SCALE, 0.75);
+      allocateTrailsAndPointsRTs();
+      aqCooldown = CONFIG.AUTO_QUALITY_COOLDOWN_SEC;
+      return;
+    }
+
+    const next = Math.min(CONFIG.TRAIL_RES_SCALE, trailScale + 0.05);
+    if (next !== trailScale) {
+      trailScale = next;
+      allocateTrailsAndPointsRTs();
+      aqCooldown = CONFIG.AUTO_QUALITY_COOLDOWN_SEC;
+      return;
+    }
+  }
 }
 
 // =======================================================
 // Render with option 4 section mask gating
 // =======================================================
 function renderWithTrails(scrollY) {
-  // Render into downscaled/capped RTs. Scale point size so upsample looks consistent.
-  pointsMatMRT.uniforms.uPointScale.value = rtScaleTotal;
+  // IMPORTANT:
+  // We render into a capped RT of size (baseW/H * capScale * trailScale).
+  // To keep apparent point size consistent after upsample, we scale point size by (capScale * trailScale).
+  pointsMatMRT.uniforms.uPointScale.value = rtScaleTotal; // NEW: capScale * trailScale
   pointsMatMRT.uniforms.uScrollY.value = scrollY;
 
   points.material = pointsMatMRT;
-
   renderer.setRenderTarget(rtPointsMRT);
   renderer.clear(true, true, true);
   renderer.render(renderScene, renderCam);
 
-  const prev = trailPing === 0 ? rtTrailA : rtTrailB;
-  const next = trailPing === 0 ? rtTrailB : rtTrailA;
+  const prev = (trailPing === 0) ? rtTrailA : rtTrailB;
+  const next = (trailPing === 0) ? rtTrailB : rtTrailA;
 
   trailAccMat.uniforms.uPrevColor.value = prev.textures[0];
-  trailAccMat.uniforms.uPrevMask.value = prev.textures[1];
+  trailAccMat.uniforms.uPrevMask.value  = prev.textures[1];
   trailAccMat.uniforms.uCurrColor.value = rtPointsMRT.textures[0];
-  trailAccMat.uniforms.uCurrMask.value = rtPointsMRT.textures[1];
+  trailAccMat.uniforms.uCurrMask.value  = rtPointsMRT.textures[1];
 
-  // (Fixed config values; no adaptive changes)
   trailAccMat.uniforms.uDecay.value = CONFIG.TRAIL_DECAY;
   trailAccMat.uniforms.uExposure.value = CONFIG.TRAIL_EXPOSURE;
+
   trailAccMat.uniforms.uSectionMix.value = CONFIG.TRAIL_SECTION_MIX;
   trailAccMat.uniforms.uSectionEps.value = CONFIG.TRAIL_SECTION_EPS;
 
@@ -1151,7 +1300,6 @@ function renderWithTrails(scrollY) {
 
   trailPing = 1 - trailPing;
 
-  // Restore normal points material for next frame
   points.material = pointsMatScreen;
   pointsMatScreen.uniforms.uPointScale.value = 1.0;
 }
@@ -1167,46 +1315,63 @@ function renderDirect(scrollY) {
 }
 
 // =======================================================
-// Main loop (fixed-step GPU simulation)
+// Main loop
 // =======================================================
 let lastTime = 0;
 let acc = 0;
 
+// Choose your sim step rate. 120hz usually feels very smooth.
 const FIXED_DT = 1 / 120;
-const MAX_FRAME_DT = 0.10;
+
+// Prevent spiraling if the tab stutters
+const MAX_FRAME_DT = 0.10; // seconds
 const MAX_STEPS_PER_FRAME = 6;
 
 function animate(ts) {
   if (!lastTime) lastTime = ts;
 
+  // Frame delta (render timing)
   let frameDt = (ts - lastTime) / 1000;
   lastTime = ts;
+
+  // Clamp huge stalls
   frameDt = Math.min(frameDt, MAX_FRAME_DT);
 
+  // HUD uses real frame dt (not fixed dt)
   updateDebugHUD(frameDt);
 
+  // Use a smoothed FPS estimate (optional, keeps autoQuality from thrashing)
+  const fpsNow = frameDt > 0 ? (1 / frameDt) : 60;
+
+  // Auto quality still runs on frame cadence (fine)
+  autoQualityStep(frameDt, fpsNow);
+
+  // Accumulate time for fixed-step simulation
   acc += frameDt;
 
   const scrollY = window.scrollY;
 
-  // Continuous uniforms
+  // Update uniforms that are "continuous time" each frame
   simMat.uniforms.uTime.value = ts / 1000;
 
-  // Sync sim params (in case you tweak CONFIG live)
+  // Update uniforms that can change per-step too (scroll affects section type)
   simMat.uniforms.uDepth.value = CONFIG.DEPTH;
   simMat.uniforms.uForce.value = CONFIG.FORCE;
   simMat.uniforms.uDrag.value = CONFIG.DRAG;
   simMat.uniforms.uMaxSpeed.value = CONFIG.MAX_SPEED;
   simMat.uniforms.uPressure.value = CONFIG.PRESSURE_STRENGTH;
 
-  // Fixed timestep sim steps
+  // Throttle particle count via drawRange (render-time)
+  points.geometry.setDrawRange(0, activeCount);
+
+  // --- Fixed timestep GPU sim steps ---
   let steps = 0;
   while (acc >= FIXED_DT && steps < MAX_STEPS_PER_FRAME) {
     simMat.uniforms.uDt.value = FIXED_DT;
     simMat.uniforms.uScrollY.value = scrollY;
 
-    const src = simPing === 0 ? mrtA : mrtB;
-    const dst = simPing === 0 ? mrtB : mrtA;
+    const src = (simPing === 0) ? mrtA : mrtB;
+    const dst = (simPing === 0) ? mrtB : mrtA;
 
     simMat.uniforms.uPosTex.value = src.textures[0];
     simMat.uniforms.uVelTex.value = src.textures[1];
@@ -1221,14 +1386,17 @@ function animate(ts) {
     steps++;
   }
 
+  // If we got behind badly, drop remainder to avoid "slow motion catch-up"
   if (acc > FIXED_DT * MAX_STEPS_PER_FRAME) acc = 0;
 
-  // Bind latest sim textures to point materials (once per frame)
-  const cur = simPing === 0 ? mrtA : mrtB;
+  // Bind latest state textures to BOTH point materials (once per frame)
+  const cur = (simPing === 0) ? mrtA : mrtB;
+
   for (const pm of [pointsMatScreen, pointsMatMRT]) {
     pm.uniforms.uPosTex.value = cur.textures[0];
     pm.uniforms.uVelTex.value = cur.textures[1];
 
+    // keep these synced (they may be tweaked live)
     pm.uniforms.uDepth.value = CONFIG.DEPTH;
     pm.uniforms.uMinPointPx.value = CONFIG.MIN_POINT_PX;
     pm.uniforms.uZSizeVar.value = CONFIG.Z_SIZE_VARIATION;
@@ -1237,26 +1405,27 @@ function animate(ts) {
     pm.uniforms.uZAlphaVar.value = CONFIG.Z_ALPHA_VARIATION;
   }
 
-  // Render
+  // Render once per frame
   if (CONFIG.TRAILS && rtPointsMRT && rtTrailA && rtTrailB) renderWithTrails(scrollY);
   else renderDirect(scrollY);
 
   requestAnimationFrame(animate);
 }
 
+
 // =======================================================
 // Resize listeners
 // =======================================================
-function onResize() {
-  // Re-init on resize because particleCount + texSize depend on effective size.
-  // optimize later.
+window.addEventListener("resize", () => {
+  resize();
   init();
-}
-
-window.addEventListener("resize", onResize);
+});
 
 if (window.visualViewport) {
-  window.visualViewport.addEventListener("resize", onResize);
+  window.visualViewport.addEventListener("resize", () => {
+    resize();
+    init();
+  });
 }
 
 // =======================================================
@@ -1265,5 +1434,6 @@ if (window.visualViewport) {
 setupThree();
 setupDebugHUD();
 mapSections();
+resize();
 init();
 requestAnimationFrame(animate);
