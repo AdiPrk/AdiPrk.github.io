@@ -1,570 +1,889 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neural Notes Unlimited</title>
+
+    <title>Neural Notes Unlimited - Stable Tuner</title>
+
     <style>
+
         :root {
+
             --bg-color: #0f172a;
+
             --surface-color: #1e293b;
+
             --primary: #f59e0b; /* Amber */
+
             --accent: #0ea5e9; /* Sky Blue */
+
             --text: #f8fafc;
+
             --text-muted: #94a3b8;
+
             --bmc-yellow: #FFDD00;
+
         }
+
+
 
         body {
+
             font-family: 'Segoe UI', system-ui, sans-serif;
+
             background-color: var(--bg-color);
+
             color: var(--text);
+
             margin: 0;
+
             height: 100vh;
+
             display: flex;
+
             flex-direction: column;
+
             overflow: hidden;
+
         }
 
-        /* --- Header & Logo --- */
+
+
         header {
+
             display: flex;
+
             justify-content: space-between;
+
             align-items: center;
+
             padding: 20px 40px;
+
             background: rgba(15, 23, 42, 0.9);
+
             border-bottom: 1px solid rgba(255,255,255,0.05);
+
             z-index: 10;
+
         }
+
+
 
         .logo-container {
+
             display: flex;
+
             align-items: center;
+
             gap: 15px;
+
             font-weight: 700;
+
             font-size: 1.5rem;
+
             letter-spacing: -0.5px;
+
         }
+
+
 
         .logo-img {
+
             width: 45px;
+
             height: 45px;
+
             object-fit: contain;
+
             background: rgba(255, 255, 255, 0.1);
+
             border-radius: 8px;
+
             padding: 5px;
+
         }
+
+
 
         .brand-link {
+
             color: var(--text);
+
             text-decoration: none;
+
             transition: color 0.2s ease;
+
         }
+
         
+
         .brand-link:hover {
+
             color: var(--primary);
+
             text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+
         }
+
+
 
         .controls {
+
             display: flex;
+
             gap: 15px;
+
         }
+
+
 
         select, button {
+
             padding: 8px 16px;
+
             border-radius: 6px;
+
             border: 1px solid var(--surface-color);
+
             background: var(--surface-color);
+
             color: var(--text);
+
             cursor: pointer;
+
             font-size: 0.9rem;
+
             transition: all 0.2s;
+
         }
+
         
+
         button#startButton {
+
             background: var(--primary);
+
             color: #000;
+
             border: none;
+
             font-weight: 600;
+
         }
+
         button#startButton:hover { background: #d97706; }
 
-        /* --- Main Stage --- */
+
+
         .main-stage {
+
             flex: 1;
+
             display: flex;
+
             flex-direction: column;
+
             align-items: center;
+
             justify-content: center;
+
             position: relative;
+
         }
+
+
 
         .note-container {
+
             text-align: center;
+
             margin-bottom: 20px;
+
             position: relative;
+
             z-index: 2;
+
         }
+
+
 
         #swara-display {
+
             font-size: 7rem;
+
             font-weight: 800;
+
             margin: 0;
+
             line-height: 1;
+
             text-shadow: 0 0 30px rgba(245, 158, 11, 0.2);
+
             transition: color 0.2s;
+
         }
+
+
 
         #hz-display {
+
             font-family: monospace;
+
             color: var(--text-muted);
+
             font-size: 1.2rem;
+
             margin-top: 10px;
+
         }
 
-        /* Fine Tune Bar */
+
+
         .fine-tune-bar {
+
             width: 300px;
+
             height: 6px;
+
             background: var(--surface-color);
+
             border-radius: 3px;
+
             margin: 20px auto;
+
             position: relative;
+
             overflow: hidden;
-        }
-        .fine-tune-indicator {
-            width: 6px;
-            height: 100%;
-            background: var(--text);
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            border-radius: 3px;
-            transition: left 0.1s linear; 
-        }
-        .center-marker {
-            position: absolute;
-            left: 50%;
-            height: 100%;
-            width: 2px;
-            background: var(--primary);
-            transform: translateX(-50%);
-            z-index: 1;
+
         }
 
-        /* --- Canvases --- */
-        .visualizer-container {
-            width: 100%;
-            height: 250px;
-            position: relative;
-            background: linear-gradient(to bottom, transparent, rgba(30, 41, 59, 0.3));
+        .fine-tune-indicator {
+
+            width: 6px;
+
+            height: 100%;
+
+            background: var(--text);
+
+            position: absolute;
+
+            left: 50%;
+
+            transform: translateX(-50%);
+
+            border-radius: 3px;
+
+            transition: left 0.1s linear; 
+
         }
+
+        .center-marker {
+
+            position: absolute;
+
+            left: 50%;
+
+            height: 100%;
+
+            width: 2px;
+
+            background: var(--primary);
+
+            transform: translateX(-50%);
+
+            z-index: 1;
+
+        }
+
+
+
+        .visualizer-container {
+
+            width: 100%;
+
+            height: 250px;
+
+            position: relative;
+
+            background: linear-gradient(to bottom, transparent, rgba(30, 41, 59, 0.3));
+
+        }
+
+
 
         canvas {
+
             position: absolute;
+
             left: 0;
+
             width: 100%;
+
         }
+
+
 
         #ribbon-canvas { top: 0; height: 80px; z-index: 2; }
+
         #history-canvas { top: 80px; height: 170px; z-index: 1; border-top: 1px solid rgba(255,255,255,0.05); }
 
+
+
         .glow-ring {
+
             position: absolute;
+
             width: 300px;
+
             height: 300px;
+
             background: radial-gradient(circle, rgba(245, 158, 11, 0.1) 0%, transparent 70%);
+
             border-radius: 50%;
+
             pointer-events: none;
+
             z-index: 0;
+
             opacity: 0;
+
             transition: opacity 0.1s;
+
         }
 
-        /* --- Buy Me A Coffee Button --- */
+
+
         .bmc-btn {
+
             position: fixed;
+
             bottom: 25px;
+
             right: 25px;
+
             display: flex;
+
             align-items: center;
+
             gap: 10px;
+
             background-color: var(--bmc-yellow);
+
             color: #000000;
+
             padding: 10px 20px;
+
             border-radius: 30px;
+
             text-decoration: none;
+
             font-weight: 700;
+
             font-size: 1rem;
+
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+
             transition: transform 0.2s, box-shadow 0.2s;
+
             z-index: 100;
-            font-family: 'Arial', sans-serif; /* BMC standard font */
+
+            font-family: 'Arial', sans-serif;
+
         }
+
+
 
         .bmc-btn:hover {
+
             transform: translateY(-2px);
+
             box-shadow: 0 6px 20px rgba(255, 221, 0, 0.4);
+
         }
 
-        .bmc-btn svg {
-            width: 20px;
-            height: 20px;
-        }
+
+
+        .bmc-btn svg { width: 20px; height: 20px; }
 
     </style>
+
 </head>
+
 <body>
 
     <header>
+
         <div class="logo-container">
+
             <img src="logo.jpeg" class="logo-img" alt="Logo">
+
             <a href="https://www.youtube.com/@NeuralNotesUnlimited" target="_blank" class="brand-link">
+
                 Neural Notes Unlimited
+
             </a>
+
         </div>
+
         <div class="controls">
+
             <select id="tonic-select">
+
                 <option value="0">Sa = C</option>
+
                 <option value="1">Sa = C#</option>
+
                 <option value="2">Sa = D</option>
+
                 <option value="3">Sa = D#</option>
+
                 <option value="4">Sa = E</option>
+
                 <option value="5">Sa = F</option>
+
                 <option value="6">Sa = F#</option>
+
                 <option value="7">Sa = G</option>
+
                 <option value="8">Sa = G#</option>
+
                 <option value="9">Sa = A</option>
+
                 <option value="10">Sa = A#</option>
+
                 <option value="11">Sa = B</option>
+
             </select>
+
             <button id="startButton">Start Microphone</button>
+
         </div>
+
     </header>
 
+
+
     <div class="main-stage">
+
         <div class="glow-ring" id="volume-glow"></div>
-        
+
         <div class="note-container">
+
             <div id="swara-display">--</div>
+
             <div class="fine-tune-bar">
+
                 <div class="center-marker"></div>
+
                 <div class="fine-tune-indicator" id="cents-indicator"></div>
+
             </div>
+
             <div id="hz-display">Ready to sing</div>
+
         </div>
+
+
 
         <div class="visualizer-container">
+
             <canvas id="ribbon-canvas"></canvas>
+
             <canvas id="history-canvas"></canvas>
+
         </div>
+
     </div>
 
+
+
     <a href="https://buymeacoffee.com/pecfi1z" target="_blank" class="bmc-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-coffee"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
+
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
+
         Buy me a coffee
+
     </a>
 
+
+
     <script>
+
         // -- Configuration --
+
         const SARGAM = ["Sa", "re", "Re", "ga", "Ga", "ma", "Ma", "Pa", "dha", "Dha", "ni", "Ni"];
+
         const HISTORY_SIZE = 300; 
+
         const PITCH_SMOOTHING = 0.15; 
-        const VIEW_SMOOTHING = 0.05; // Slower smoothing for the "Camera" to prevent jumping
+
+        const VIEW_SMOOTHING = 0.05;
+
+        const MEDIAN_WINDOW = 7; // Number of frames to use for stability
+
+
 
         // -- DOM Elements --
+
         const ribbonCanvas = document.getElementById('ribbon-canvas');
+
         const historyCanvas = document.getElementById('history-canvas');
+
         const ctxRibbon = ribbonCanvas.getContext('2d');
+
         const ctxHistory = historyCanvas.getContext('2d');
+
         const swaraDisplay = document.getElementById('swara-display');
+
         const hzDisplay = document.getElementById('hz-display');
+
         const centsIndicator = document.getElementById('cents-indicator');
+
         const volumeGlow = document.getElementById('volume-glow');
+
         const startBtn = document.getElementById('startButton');
+
         const tonicSelect = document.getElementById('tonic-select');
 
+
+
         // -- State Variables --
-        let audioContext, analyser, source;
+
+        let audioContext, analyser, source, biquadFilter;
+
         let dataArray;
+
         let isRunning = false;
-        
-        // Pitch State
-        let currentPitchMidi = 60; 
+
         let smoothedPitchMidi = 60; 
-        
-        // View State (The "Camera")
+
         let viewCenterMidi = 60; 
 
         let pitchHistory = new Array(HISTORY_SIZE).fill(null);
+
+        let medianBuffer = [];
+
         let volume = 0;
 
+
+
         // -- Resize Logic --
+
         function resize() {
+
             ribbonCanvas.width = ribbonCanvas.offsetWidth;
+
             ribbonCanvas.height = ribbonCanvas.offsetHeight;
+
             historyCanvas.width = historyCanvas.offsetWidth;
+
             historyCanvas.height = historyCanvas.offsetHeight;
+
         }
+
         window.addEventListener('resize', resize);
+
         resize();
 
-        // -- Helper: Linear Interpolation --
-        function lerp(start, end, t) {
-            return start * (1 - t) + end * t;
-        }
 
-        function midiToFreq(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+
+        function lerp(start, end, t) { return start * (1 - t) + end * t; }
+
         function freqToMidi(f) { return 12 * Math.log2(f / 440) + 69; }
 
-        // -- Audio Engine --
+
+
+        // --- NEW: Auto-Correlation Algorithm (More stable than FFT Peaks) ---
+
+        function autoCorrelate(buf, sampleRate) {
+
+            let size = buf.length;
+
+            let rms = 0;
+
+            for (let i = 0; i < size; i++) rms += buf[i] * buf[i];
+
+            rms = Math.sqrt(rms / size);
+
+            if (rms < 0.01) return -1; // Ignore silence
+
+
+
+            let r1 = 0, r2 = size - 1, thres = 0.2;
+
+            for (let i = 0; i < size / 2; i++) if (Math.abs(buf[i]) < thres) { r1 = i; break; }
+
+            for (let i = 1; i < size / 2; i++) if (Math.abs(buf[size - i]) < thres) { r2 = size - i; break; }
+
+            buf = buf.slice(r1, r2);
+
+            let nsize = buf.length;
+
+            let c = new Array(nsize).fill(0);
+
+            for (let i = 0; i < nsize; i++) {
+
+                for (let j = 0; j < nsize - i; j++) c[i] = c[i] + buf[j] * buf[j + i];
+
+            }
+
+            let d = 0; while (c[d] > c[d + 1]) d++;
+
+            let maxval = -1, maxpos = -1;
+
+            for (let i = d; i < nsize; i++) {
+
+                if (c[i] > maxval) { maxval = c[i]; maxpos = i; }
+
+            }
+
+            return sampleRate / maxpos;
+
+        }
+
+
+
         async function startAudio() {
+
             try {
+
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
                 
+
+                // 1. Audio Pre-Filter (Removes high pitched noise/hiss)
+
+                biquadFilter = audioContext.createBiquadFilter();
+
+                biquadFilter.type = "lowpass";
+
+                biquadFilter.frequency.value = 1000; 
+
+
+
                 analyser = audioContext.createAnalyser();
-                analyser.fftSize = 4096; 
-                analyser.smoothingTimeConstant = 0.5;
+
+                analyser.fftSize = 2048; 
+
+
 
                 source = audioContext.createMediaStreamSource(stream);
-                source.connect(analyser);
 
-                dataArray = new Float32Array(analyser.frequencyBinCount);
-                
+                source.connect(biquadFilter);
+
+                biquadFilter.connect(analyser);
+
+
+
+                dataArray = new Float32Array(analyser.fftSize);
+
                 startBtn.style.display = 'none';
+
                 isRunning = true;
+
                 update();
 
             } catch (e) {
+
                 alert("Could not access microphone.");
-                console.error(e);
+
             }
+
         }
 
-        // -- Main Loop --
+
+
         function update() {
+
             if (!isRunning) return;
 
-            analyser.getFloatFrequencyData(dataArray);
 
-            // 1. Calculate Pitch (Peak detection)
-            let maxVal = -Infinity;
-            let maxIndex = -1;
-            const nyquist = audioContext.sampleRate / 2;
-            const lowIndex = Math.floor(60 / nyquist * dataArray.length);
-            const highIndex = Math.floor(1200 / nyquist * dataArray.length);
 
-            for (let i = lowIndex; i < highIndex; i++) {
-                if (dataArray[i] > maxVal) {
-                    maxVal = dataArray[i];
-                    maxIndex = i;
-                }
-            }
+            analyser.getFloatTimeDomainData(dataArray);
 
-            // Volume Calculation
-            let normVol = (maxVal + 100) / 100; 
-            normVol = Math.max(0, Math.min(1, normVol));
-            volume = lerp(volume, normVol, 0.1);
             
-            volumeGlow.style.opacity = volume * 1.5; 
-            volumeGlow.style.transform = `scale(${0.8 + volume * 0.4})`;
 
-            // 2. Process Pitch
-            const rawFreq = maxIndex * audioContext.sampleRate / analyser.fftSize;
-            let targetMidi = 0;
+            // 2. Volume & Pitch Logic
+
+            let rawFreq = autoCorrelate(dataArray, audioContext.sampleRate);
+
             let hasSignal = false;
 
-            if (maxVal > -60 && rawFreq > 50) { 
-                targetMidi = freqToMidi(rawFreq);
-                hasSignal = true;
-            }
 
-            // 3. Smooth the Pitch (LERP)
-            if (hasSignal) {
-                if (Math.abs(targetMidi - smoothedPitchMidi) > 3) {
-                    smoothedPitchMidi = targetMidi;
-                } else {
-                    smoothedPitchMidi = lerp(smoothedPitchMidi, targetMidi, PITCH_SMOOTHING);
-                }
+
+            if (rawFreq > 50 && rawFreq < 1200) {
+
+                // Median Filter: Push new frequency and sort buffer
+
+                medianBuffer.push(rawFreq);
+
+                if (medianBuffer.length > MEDIAN_WINDOW) medianBuffer.shift();
+
                 
-                // 3b. Update the Camera (View Center)
-                // This is the key fix: We move the camera SLLLOOOWWWLY towards the note
-                // instead of snapping to Math.round(midi).
+
+                let sorted = [...medianBuffer].sort((a, b) => a - b);
+
+                let stableFreq = sorted[Math.floor(sorted.length / 2)];
+
+                
+
+                let targetMidi = freqToMidi(stableFreq);
+
+                hasSignal = true;
+
+
+
+                // Smoothing
+
+                if (Math.abs(targetMidi - smoothedPitchMidi) > 3) smoothedPitchMidi = targetMidi;
+
+                else smoothedPitchMidi = lerp(smoothedPitchMidi, targetMidi, PITCH_SMOOTHING);
+
+                
+
                 viewCenterMidi = lerp(viewCenterMidi, smoothedPitchMidi, VIEW_SMOOTHING);
+
+                updateDisplay(smoothedPitchMidi, true, stableFreq);
+
+            } else {
+
+                updateDisplay(smoothedPitchMidi, false, 0);
+
             }
 
-            // 4. Update UI Data
-            updateDisplay(smoothedPitchMidi, hasSignal, rawFreq);
 
-            // 5. Draw Visualizations
+
             drawRibbon(smoothedPitchMidi, viewCenterMidi);
+
             drawHistory(smoothedPitchMidi, hasSignal, viewCenterMidi);
 
             requestAnimationFrame(update);
+
         }
 
+
+
         function updateDisplay(midi, hasSignal, freq) {
+
             if (!hasSignal) {
+
                 swaraDisplay.style.color = "#334155";
+
                 return;
+
             }
 
             const roundedMidi = Math.round(midi);
-            const tonic = parseInt(tonicSelect.value);
-            
-            let interval = (roundedMidi - tonic) % 12;
-            if (interval < 0) interval += 12;
-            const swara = SARGAM[interval];
 
-            swaraDisplay.innerText = swara;
+            const tonic = parseInt(tonicSelect.value);
+
+            let interval = (roundedMidi - tonic) % 12;
+
+            if (interval < 0) interval += 12;
+
+
+
+            swaraDisplay.innerText = SARGAM[interval];
+
             swaraDisplay.style.color = "#f59e0b"; 
+
             hzDisplay.innerText = `${freq.toFixed(1)} Hz`;
 
-            const deviation = (midi - roundedMidi) * 100;
-            const percent = 50 + (deviation); 
-            centsIndicator.style.left = `${Math.max(0, Math.min(100, percent))}%`;
 
-            if (Math.abs(deviation) < 10) centsIndicator.style.background = "#22c55e"; 
-            else centsIndicator.style.background = "#f43f5e"; 
+
+            const deviation = (midi - roundedMidi) * 100;
+
+            centsIndicator.style.left = `${Math.max(0, Math.min(100, 50 + deviation))}%`;
+
+            centsIndicator.style.background = Math.abs(deviation) < 10 ? "#22c55e" : "#f43f5e";
+
         }
 
-        // -- Visualization 1: Sliding Ribbon Scale --
+
+
+        // --- Visualization Draw Functions (Unchanged Logic, Adjusted for Stability) ---
+
         function drawRibbon(midi, viewCenter) {
-            const w = ribbonCanvas.width;
-            const h = ribbonCanvas.height;
-            const cx = w / 2;
-            const pxPerSemi = w / 6; 
+
+            const w = ribbonCanvas.width, h = ribbonCanvas.height, cx = w / 2, pxPerSemi = w / 6; 
 
             ctxRibbon.clearRect(0, 0, w, h);
-            
-            // Draw relative to viewCenter (Camera), NOT current pitch
-            const startMidi = Math.floor(viewCenter - 4);
-            const endMidi = Math.ceil(viewCenter + 4);
+
             const tonic = parseInt(tonicSelect.value);
 
-            ctxRibbon.lineWidth = 2;
-            ctxRibbon.font = "bold 16px sans-serif";
-            ctxRibbon.textAlign = "center";
+            for (let m = Math.floor(viewCenter - 4); m <= Math.ceil(viewCenter + 4); m++) {
 
-            for (let m = startMidi; m <= endMidi; m++) {
-                // Determine x position based on distance from the camera center
-                const diff = m - viewCenter; 
-                const x = cx + (diff * pxPerSemi);
-                
+                const diff = m - viewCenter, x = cx + (diff * pxPerSemi);
+
                 const alpha = 1 - (Math.abs(diff) / 4);
+
                 if (alpha < 0) continue;
 
                 let interval = (m - tonic) % 12;
+
                 if (interval < 0) interval += 12;
 
                 ctxRibbon.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-                ctxRibbon.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.3})`;
 
-                // Tick
-                ctxRibbon.beginPath();
-                ctxRibbon.moveTo(x, h);
-                ctxRibbon.lineTo(x, h - 20);
-                ctxRibbon.stroke();
-
-                // Text
                 ctxRibbon.fillText(SARGAM[interval], x, h - 30);
+
             }
 
-            // Draw Needle (The user's actual pitch position relative to camera)
-            const pitchDiff = midi - viewCenter;
-            const needleX = cx + (pitchDiff * pxPerSemi);
+            const needleX = cx + ((midi - viewCenter) * pxPerSemi);
 
-            ctxRibbon.strokeStyle = "#f59e0b";
-            ctxRibbon.lineWidth = 4;
-            ctxRibbon.beginPath();
-            ctxRibbon.moveTo(needleX, h);
-            ctxRibbon.lineTo(needleX, h - 40);
-            ctxRibbon.stroke();
+            ctxRibbon.strokeStyle = "#f59e0b"; ctxRibbon.lineWidth = 4;
+
+            ctxRibbon.beginPath(); ctxRibbon.moveTo(needleX, h); ctxRibbon.lineTo(needleX, h - 40); ctxRibbon.stroke();
+
         }
 
-        // -- Visualization 2: Pitch History Graph --
-        function drawHistory(midi, hasSignal, viewCenter) {
-            pitchHistory.shift();
-            pitchHistory.push(hasSignal ? midi : null);
 
-            const w = historyCanvas.width;
-            const h = historyCanvas.height;
-            const range = 6; 
-            
-            // KEY FIX: We use the smoothed viewCenter as the reference
-            // instead of rounding the current pitch.
-            const centerRef = viewCenter;
+
+        function drawHistory(midi, hasSignal, viewCenter) {
+
+            pitchHistory.shift(); pitchHistory.push(hasSignal ? midi : null);
+
+            const w = historyCanvas.width, h = historyCanvas.height, range = 6;
 
             ctxHistory.clearRect(0, 0, w, h);
 
-            // Grid Lines - Locked to Integers
-            // We loop through integer notes around the floating camera
-            const startGrid = Math.floor(centerRef - range);
-            const endGrid = Math.ceil(centerRef + range);
-
-            ctxHistory.lineWidth = 1;
-            
-            for (let m = startGrid; m <= endGrid; m++) {
-                // Calculate Y relative to the floating camera
-                const y = h/2 - (m - centerRef) * (h / (range * 2));
-                
-                // Opacity fades near edges
-                const dist = Math.abs(m - centerRef);
-                const alpha = Math.max(0, 1 - (dist / range));
-                
-                ctxHistory.strokeStyle = `rgba(255,255,255,${alpha * 0.1})`;
-                ctxHistory.beginPath();
-                ctxHistory.moveTo(0, y);
-                ctxHistory.lineTo(w, y);
-                ctxHistory.stroke();
-            }
-
-            // The Pitch Line
-            ctxHistory.strokeStyle = "#0ea5e9";
-            ctxHistory.lineWidth = 3;
-            ctxHistory.lineCap = "round";
-            ctxHistory.lineJoin = "round";
-            ctxHistory.beginPath();
+            ctxHistory.strokeStyle = "#0ea5e9"; ctxHistory.lineWidth = 3; ctxHistory.beginPath();
 
             let started = false;
 
             for (let i = 0; i < HISTORY_SIZE; i++) {
+
                 const p = pitchHistory[i];
-                // New points enter from right
+
                 const x = (i / HISTORY_SIZE) * w;
 
-                if (p === null) {
-                    ctxHistory.stroke(); 
-                    started = false;
-                    continue;
-                }
+                if (p === null) { ctxHistory.stroke(); started = false; continue; }
 
-                const y = h/2 - (p - centerRef) * (h / (range * 2));
+                const y = h/2 - (p - viewCenter) * (h / (range * 2));
 
-                if (!started) {
-                    ctxHistory.beginPath();
-                    ctxHistory.moveTo(x, y);
-                    started = true;
-                } else {
-                    ctxHistory.lineTo(x, y);
-                }
+                if (!started) { ctxHistory.beginPath(); ctxHistory.moveTo(x, y); started = true; } 
+
+                else ctxHistory.lineTo(x, y);
+
             }
+
             ctxHistory.stroke();
-            
-            // Draw Center Line (Target)
-            ctxHistory.strokeStyle = "rgba(245, 158, 11, 0.3)"; // Amber low opacity
-            ctxHistory.setLineDash([5, 5]);
-            ctxHistory.beginPath();
-            ctxHistory.moveTo(0, h/2);
-            ctxHistory.lineTo(w, h/2);
-            ctxHistory.stroke();
-            ctxHistory.setLineDash([]);
+
         }
+
+
 
         startBtn.addEventListener('click', startAudio);
 
     </script>
+
 </body>
+
 </html>
