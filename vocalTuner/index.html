@@ -8,7 +8,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Neural Notes Unlimited - Stable Tuner</title>
+    <title>Neural Notes Unlimited</title>
 
     <style>
 
@@ -202,7 +202,7 @@
 
             text-align: center;
 
-            margin-bottom: 20px;
+            margin-bottom: 40px;
 
             position: relative;
 
@@ -254,7 +254,7 @@
 
             border-radius: 3px;
 
-            margin: 20px auto;
+            margin: 25px auto;
 
             position: relative;
 
@@ -264,9 +264,9 @@
 
         .fine-tune-indicator {
 
-            width: 6px;
+            width: 10px;
 
-            height: 100%;
+            height: 10px;
 
             background: var(--text);
 
@@ -274,9 +274,11 @@
 
             left: 50%;
 
+            top: -2px;
+
             transform: translateX(-50%);
 
-            border-radius: 3px;
+            border-radius: 50%;
 
             transition: left 0.1s linear; 
 
@@ -306,7 +308,7 @@
 
             width: 100%;
 
-            height: 250px;
+            height: 120px;
 
             position: relative;
 
@@ -328,9 +330,7 @@
 
 
 
-        #ribbon-canvas { top: 0; height: 80px; z-index: 2; }
-
-        #history-canvas { top: 80px; height: 170px; z-index: 1; border-top: 1px solid rgba(255,255,255,0.05); }
+        #ribbon-canvas { top: 0; height: 100px; z-index: 2; }
 
 
 
@@ -392,23 +392,7 @@
 
             z-index: 100;
 
-            font-family: 'Arial', sans-serif;
-
         }
-
-
-
-        .bmc-btn:hover {
-
-            transform: translateY(-2px);
-
-            box-shadow: 0 6px 20px rgba(255, 221, 0, 0.4);
-
-        }
-
-
-
-        .bmc-btn svg { width: 20px; height: 20px; }
 
     </style>
 
@@ -494,8 +478,6 @@
 
             <canvas id="ribbon-canvas"></canvas>
 
-            <canvas id="history-canvas"></canvas>
-
         </div>
 
     </div>
@@ -504,7 +486,7 @@
 
     <a href="https://buymeacoffee.com/pecfi1z" target="_blank" class="bmc-btn">
 
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
 
         Buy me a coffee
 
@@ -514,29 +496,19 @@
 
     <script>
 
-        // -- Configuration --
-
         const SARGAM = ["Sa", "re", "Re", "ga", "Ga", "ma", "Ma", "Pa", "dha", "Dha", "ni", "Ni"];
-
-        const HISTORY_SIZE = 300; 
 
         const PITCH_SMOOTHING = 0.15; 
 
         const VIEW_SMOOTHING = 0.05;
 
-        const MEDIAN_WINDOW = 7; // Number of frames to use for stability
+        const MEDIAN_WINDOW = 7;
 
 
-
-        // -- DOM Elements --
 
         const ribbonCanvas = document.getElementById('ribbon-canvas');
 
-        const historyCanvas = document.getElementById('history-canvas');
-
         const ctxRibbon = ribbonCanvas.getContext('2d');
-
-        const ctxHistory = historyCanvas.getContext('2d');
 
         const swaraDisplay = document.getElementById('swara-display');
 
@@ -544,19 +516,13 @@
 
         const centsIndicator = document.getElementById('cents-indicator');
 
-        const volumeGlow = document.getElementById('volume-glow');
-
         const startBtn = document.getElementById('startButton');
 
         const tonicSelect = document.getElementById('tonic-select');
 
 
 
-        // -- State Variables --
-
-        let audioContext, analyser, source, biquadFilter;
-
-        let dataArray;
+        let audioContext, analyser, biquadFilter, dataArray;
 
         let isRunning = false;
 
@@ -564,25 +530,15 @@
 
         let viewCenterMidi = 60; 
 
-        let pitchHistory = new Array(HISTORY_SIZE).fill(null);
-
         let medianBuffer = [];
 
-        let volume = 0;
 
-
-
-        // -- Resize Logic --
 
         function resize() {
 
             ribbonCanvas.width = ribbonCanvas.offsetWidth;
 
             ribbonCanvas.height = ribbonCanvas.offsetHeight;
-
-            historyCanvas.width = historyCanvas.offsetWidth;
-
-            historyCanvas.height = historyCanvas.offsetHeight;
 
         }
 
@@ -598,8 +554,6 @@
 
 
 
-        // --- NEW: Auto-Correlation Algorithm (More stable than FFT Peaks) ---
-
         function autoCorrelate(buf, sampleRate) {
 
             let size = buf.length;
@@ -610,7 +564,7 @@
 
             rms = Math.sqrt(rms / size);
 
-            if (rms < 0.01) return -1; // Ignore silence
+            if (rms < 0.01) return -1;
 
 
 
@@ -620,15 +574,15 @@
 
             for (let i = 1; i < size / 2; i++) if (Math.abs(buf[size - i]) < thres) { r2 = size - i; break; }
 
-            buf = buf.slice(r1, r2);
+            let audioSlice = buf.slice(r1, r2);
 
-            let nsize = buf.length;
+            let nsize = audioSlice.length;
 
             let c = new Array(nsize).fill(0);
 
             for (let i = 0; i < nsize; i++) {
 
-                for (let j = 0; j < nsize - i; j++) c[i] = c[i] + buf[j] * buf[j + i];
+                for (let j = 0; j < nsize - i; j++) c[i] = c[i] + audioSlice[j] * audioSlice[j + i];
 
             }
 
@@ -656,31 +610,21 @@
 
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-                
-
-                // 1. Audio Pre-Filter (Removes high pitched noise/hiss)
-
                 biquadFilter = audioContext.createBiquadFilter();
 
                 biquadFilter.type = "lowpass";
 
                 biquadFilter.frequency.value = 1000; 
 
-
-
                 analyser = audioContext.createAnalyser();
 
                 analyser.fftSize = 2048; 
 
-
-
-                source = audioContext.createMediaStreamSource(stream);
+                const source = audioContext.createMediaStreamSource(stream);
 
                 source.connect(biquadFilter);
 
                 biquadFilter.connect(analyser);
-
-
 
                 dataArray = new Float32Array(analyser.fftSize);
 
@@ -690,11 +634,7 @@
 
                 update();
 
-            } catch (e) {
-
-                alert("Could not access microphone.");
-
-            }
+            } catch (e) { alert("Mic access denied."); }
 
         }
 
@@ -704,43 +644,25 @@
 
             if (!isRunning) return;
 
-
-
             analyser.getFloatTimeDomainData(dataArray);
 
-            
-
-            // 2. Volume & Pitch Logic
-
             let rawFreq = autoCorrelate(dataArray, audioContext.sampleRate);
-
-            let hasSignal = false;
 
 
 
             if (rawFreq > 50 && rawFreq < 1200) {
 
-                // Median Filter: Push new frequency and sort buffer
-
                 medianBuffer.push(rawFreq);
 
                 if (medianBuffer.length > MEDIAN_WINDOW) medianBuffer.shift();
-
-                
 
                 let sorted = [...medianBuffer].sort((a, b) => a - b);
 
                 let stableFreq = sorted[Math.floor(sorted.length / 2)];
 
-                
-
                 let targetMidi = freqToMidi(stableFreq);
 
-                hasSignal = true;
 
-
-
-                // Smoothing
 
                 if (Math.abs(targetMidi - smoothedPitchMidi) > 3) smoothedPitchMidi = targetMidi;
 
@@ -761,8 +683,6 @@
 
 
             drawRibbon(smoothedPitchMidi, viewCenterMidi);
-
-            drawHistory(smoothedPitchMidi, hasSignal, viewCenterMidi);
 
             requestAnimationFrame(update);
 
@@ -808,13 +728,15 @@
 
 
 
-        // --- Visualization Draw Functions (Unchanged Logic, Adjusted for Stability) ---
-
         function drawRibbon(midi, viewCenter) {
 
             const w = ribbonCanvas.width, h = ribbonCanvas.height, cx = w / 2, pxPerSemi = w / 6; 
 
             ctxRibbon.clearRect(0, 0, w, h);
+
+            ctxRibbon.font = "bold 18px sans-serif";
+
+            ctxRibbon.textAlign = "center";
 
             const tonic = parseInt(tonicSelect.value);
 
@@ -840,41 +762,7 @@
 
             ctxRibbon.strokeStyle = "#f59e0b"; ctxRibbon.lineWidth = 4;
 
-            ctxRibbon.beginPath(); ctxRibbon.moveTo(needleX, h); ctxRibbon.lineTo(needleX, h - 40); ctxRibbon.stroke();
-
-        }
-
-
-
-        function drawHistory(midi, hasSignal, viewCenter) {
-
-            pitchHistory.shift(); pitchHistory.push(hasSignal ? midi : null);
-
-            const w = historyCanvas.width, h = historyCanvas.height, range = 6;
-
-            ctxHistory.clearRect(0, 0, w, h);
-
-            ctxHistory.strokeStyle = "#0ea5e9"; ctxHistory.lineWidth = 3; ctxHistory.beginPath();
-
-            let started = false;
-
-            for (let i = 0; i < HISTORY_SIZE; i++) {
-
-                const p = pitchHistory[i];
-
-                const x = (i / HISTORY_SIZE) * w;
-
-                if (p === null) { ctxHistory.stroke(); started = false; continue; }
-
-                const y = h/2 - (p - viewCenter) * (h / (range * 2));
-
-                if (!started) { ctxHistory.beginPath(); ctxHistory.moveTo(x, y); started = true; } 
-
-                else ctxHistory.lineTo(x, y);
-
-            }
-
-            ctxHistory.stroke();
+            ctxRibbon.beginPath(); ctxRibbon.moveTo(needleX, h); ctxRibbon.lineTo(needleX, h - 50); ctxRibbon.stroke();
 
         }
 
