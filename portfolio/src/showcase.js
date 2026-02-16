@@ -15,8 +15,8 @@ const FIXED_RENDER_DPR = Math.min(BASE_DPR, 1.25);
 const CONFIG = {
   // Particle count
   DENSITY_DIVISOR: 100,
-  MIN_PARTICLES: 10000,
-  MAX_PARTICLES: 100000,
+  MIN_PARTICLES: 100,
+  MAX_PARTICLES: 1000,
 
   // Depth volume
   DEPTH: 900,
